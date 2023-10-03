@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="en">
+<style>
+    body {
+        font: 13px/20px "Open Sans", Tahoma, Verdana, sans-serif;
+        color: #1e1e1e;
+        background: #fff;
+        overflow-y: hidden;
+        overflow-x: hidden;
+    }
+
+    /*Login form style*/
+    /* === Logo === */
+    .logo {
+        background-position: center;
+        height: 60px;
+        width: 140px;
+        margin: 100px auto 30px auto;
+    }
+
+    /* === Form === */
+    .form {
+        width: 100%;
+    }
+
+    .form .field {
+        position: relative;
+        margin: 0 50px;
+    }
+
+    .form .field i {
+        font-size: 18px;
+        left: 0px;
+        top: 0px;
+        position: absolute;
+        height: 44px;
+        width: 44px;
+        color: #f7f3eb;
+        background: #000000;
+        text-align: center;
+        line-height: 44px;
+        transition: all 0.3s ease-out;
+        pointer-events: none;
+    }
+
+    /* === Status styles === */
+    .Status {
+        position: relative;
+        /* margin: 100px auto; */
+        margin-top: 5em;
+        margin-left: 0.5em;
+        width: 500px;
+        height: 330px;
+        background: white;
+        border-radius: 3px;
+    }
+
+    .Status:before {
+        content: "";
+        position: absolute;
+        top: -8px;
+        right: -8px;
+        bottom: -8px;
+        left: -8px;
+        z-index: -1;
+        background: rgba(0, 0, 0, 0.3);
+        border-radius: 4px;
+    }
+
+    .Status h1 {
+        line-height: 55px;
+        font-size: 24px;
+        font-weight: bold;
+        font-family: "Open Sans", sans-serif;
+        text-transform: uppercase;
+        color: #fff;
+        text-align: center;
+        background: #0099ff;
+        border-top-left-radius: 3px;
+        border-top-right-radius: 3px;
+    }
+
+    .Status #test,
+    .Status #safe {
+        text-align: center;
+        background-color: #0099ff;
+        color: #f7f3eb;
+        border-radius: 10px;
+    }
+
+    .Status p:first-child {
+        margin-top: 30px;
+    }
+
+    input {
+        width: max-content;
+    }
+
+    td,
+    th {
+        text-align: left;
+    }
+
+    table {
+        margin: 20px;
+        width: 88%;
+    }
+
+    img {
+        width: 35px;
+        height: 35px;
+        position: absolute;
+        margin: 10px;
+        cursor: pointer;
+    }
+
+    /* === Setting styles === */
+    .Setting {
+        position: relative;
+        margin: 100px auto;
+        width: 370px;
+        height: 400px;
+        background: white;
+        border-radius: 3px;
+    }
+
+    .Setting:before {
+        content: "";
+        position: absolute;
+        top: -8px;
+        right: -8px;
+        bottom: -8px;
+        left: -8px;
+        z-index: -1;
+        background: rgba(0, 0, 0, 0.3);
+        border-radius: 4px;
+    }
+
+    .Setting h1 {
+        line-height: 55px;
+        font-size: 24px;
+        font-weight: bold;
+        font-family: "Open Sans", sans-serif;
+        text-transform: uppercase;
+        color: #fff;
+        text-align: center;
+        background: #0099ff;
+        border-top-left-radius: 3px;
+        border-top-right-radius: 3px;
+    }
+
+    .Setting #test,
+    .Setting #safe {
+        text-align: center;
+        background-color: #0099ff;
+        color: #f7f3eb;
+        border-radius: 10px;
+    }
+
+    .Setting p:first-child {
+        margin-top: 30px;
+    }
+
+    #myModal {
+        height: 550px;
+        width: 3800px;
+    }
+</style>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Self Checkin Server</title>
+</head>
+
+<body>
+    <div class="Status">
+        <img src="gear_icon_white.png" onclick="open_modal()">
+        <h1>Status</h1>
+
+        <form class="form" method="post" action="#">
+            <div>
+                <table cellpadding="5">
+                    <tr>
+                        <th style="width: 35%;">IP Adress</th>
+                        <th style="width: 5%;">:</th>
+                        <th style="width: 60%;"><em id="ip_address"></em></th>
+                    </tr>
+                    <tr>
+                        <th>Port</th>
+                        <th>:</th>
+                        <th><em id="port"></em></th>
+                    </tr>
+                    <tr>
+                        <th>Outlet</th>
+                        <th>:</th>
+                        <th><em id="outlet"></em></th>
+                    </tr>
+                    <tr>
+                        <th>Database name</th>
+                        <th>:</th>
+                        <th><em id="db_name"></em></th>
+                    </tr>
+                    <tr>
+                        <th>Database server</th>
+                        <th>:</th>
+                        <th><em id="db_server"></em></th>
+                    </tr>
+                    <tr>
+                        <th>Connection status</th>
+                        <th>:</th>
+                        <th><b id="status" style="color: crimson;"></b></th>
+                    </tr>
+                    <tr>
+                        <th>Is running?</th>
+                        <th>:</th>
+                        <th><b id="running" style="color: crimson;"></b></th>
+                    </tr>
+                </table>
+            </div>
+        </form>
+    </div> <!--/ Login-->
+</body>
+
+</html>
+
+<!-- Modal -->
+<div id="myModal" style="display:none">
+    <div style="background-color: rgba(0,0,0,0.5); position: fixed; top: 0; left: 0; width: 100%; height: 100%;"></div>
+    <div
+        style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); padding: 20px; text-align: center;">
+        <div class="Setting">
+            <span id="setting_modal" onclick="document.getElementById('myModal').style.display='none'"
+                style="font-size: 17px; font-weight: bold; position: absolute; top: 0; right: 0; padding: 10px; cursor: pointer;">&times;</span>
+            <h1>Setting</h1>
+            <form class="form" method="post" action="#">
+                <div>
+                    <table cellpadding="5">
+                        <tr>
+                            <th style="width: 60%;">IP Adress</th>
+                            <th style="width: 5%;">:</th>
+                            <th style="width: 35%;"><input type="text" id="ip_setting"></th>
+                        </tr>
+                        <tr>
+                            <th>Port</th>
+                            <th>:</th>
+                            <th><input type="text" id="port_setting"></th>
+                        </tr>
+                        <tr>
+                            <th>Outlet</th>
+                            <th>:</th>
+                            <th><input type="text" id="outlet_setting"></th>
+                        </tr>
+                        <tr>
+                            <th>IP Database</th>
+                            <th>:</th>
+                            <th><input type="text" id="ipdb_setting"></th>
+                        </tr>
+                        <tr>
+                            <th>Database Name</th>
+                            <th>:</th>
+                            <th><input type="text" id="dbname_setting"></th>
+                        </tr>
+                        <tr>
+                            <th>Database User</th>
+                            <th>:</th>
+                            <th><input type="text" id="dbuser_setting"></th>
+                        </tr>
+                        <tr>
+                            <th>Database Pass</th>
+                            <th>:</th>
+                            <th><input type="password" id="dbpass_setting"></th>
+                        </tr>
+                    </table>
+                </div>
+                <div>
+                    <table>
+                        <tr>
+                            <th style="width: 50%; text-align: center;"><input type="button" id="test"
+                                    value="Test Koneksi"></th>
+                            <th style="width: 50%; text-align: center;"><input type="submit" id="safe" value="Simpan" onclick="submitSetting()">
+                            </th>
+                        </tr>
+                    </table>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    var set_modal = document.getElementById("setting_modal");
+
+    function open_modal() {
+        ipcRenderer.send('OPEN-SETTING');
+
+        const ip = document.getElementById("ip_setting");
+        const port = document.getElementById("port_setting");
+        const outlet = document.getElementById("outlet_setting");
+        const db_name = document.getElementById("dbname_setting");
+        const db_server = document.getElementById("ipdb_setting");
+        const db_user = document.getElementById("dbuser_setting");
+        const db_pass = document.getElementById("dbpass_setting");
+        
+        ipcRenderer.on('LOAD-SETTING', (event, data)=>{
+            ip.value = data.serverIp;
+            port.value = data.port;
+            outlet.value = data.outlet;
+            db_name.value = data.databaseName;
+            db_server.value = data.databaseServer;
+            db_user.value = data.databaseUser;
+            db_pass.value = data.databasePassword;
+        });
+        document.getElementById('myModal').style.display = 'block';
+    }
+
+    const { ipcRenderer } = require('electron');
+
+    ipcRenderer.on('CONNECTION-STATE', (event, data)=>{
+        const stateConnection = document.getElementById('status');
+
+        if(data === true){
+            stateConnection.innerHTML = 'CONNECTED';
+            stateConnection.style.color = 'green';
+        }
+    });
+
+    ipcRenderer.on('LOAD-PREFERENCE', (event, data) => {
+        var ip_address = document.getElementById("ip_address");
+        var port = document.getElementById("port");
+        var outlet = document.getElementById("outlet");
+        var db_name = document.getElementById("db_name");
+        var db_server = document.getElementById("db_server");
+
+
+        ip_address.innerHTML = data.serverIp;
+        port.innerHTML = data.port;
+        outlet.innerHTML = data.outlet;
+        db_name.innerHTML = data.databaseName;
+        db_server.innerHTML = data.databaseServer;
+    });
+
+    const submitSetting = () => {
+        const ip = document.getElementById("ip_setting").value;
+        const port = document.getElementById("port_setting").value;
+        const outlet = document.getElementById("outlet_setting").value;
+        const db_name = document.getElementById("dbname_setting").value;
+        const db_server = document.getElementById("ipdb_setting").value;
+        const db_user = document.getElementById("dbuser_setting").value;
+        const db_pass = document.getElementById("dbpass_setting").value;
+
+        ipcRenderer.send('SUBMIT-SETTING', {
+            ip: ip,
+            port: port,
+            outlet: outlet,
+            db_name: db_name,
+            db_server: db_server,
+            db_user: db_user,
+            db_pass: db_pass
+        })
+    }
+
+
+    function toggleSetting() {
+
+        ipcRenderer.send('OPEN-SETTING', '')
+
+        var settingDiv = document.getElementById("settingDiv");
+        if (settingDiv.style.display === "none") {
+            settingDiv.style.display = "block";
+        } else {
+            settingDiv.style.display = "none";
+        }
+    }
+
+    function convertToUppercase(input) {
+        input.value = input.value.toUpperCase();
+    }
+
+    function handleDoubleClick() {
+        // Mendapatkan elemen dengan id "doubleClickText"
+        const doubleClickText = document.getElementById('notifText');
+        // Variabel untuk menyimpan waktu terakhir kali diklik
+        let lastClickTime = doubleClickText.dataset.lastClickTime || 0;
+
+        // Mendapatkan waktu saat ini
+        const currentTime = new Date().getTime();
+
+        // Memeriksa selisih waktu antara klik terakhir dan klik saat ini
+        const timeDiff = currentTime - lastClickTime;
+
+        // Jika selisih waktu kurang dari 300ms, artinya double-click
+        if (timeDiff < 300) {
+            // Mengubah display menjadi "none"
+            doubleClickText.style.display = 'none';
+        }
+
+        // Mengupdate waktu terakhir kali diklik
+        doubleClickText.dataset.lastClickTime = currentTime;
+    }
+
+</script>
