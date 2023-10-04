@@ -2,6 +2,7 @@ const { app, BrowserWindow, Tray, ipcMain } = require('electron');
 const { cekKoneksi } = require('./src/util/connection')
 const preferences = require('./src/util/preferences');
 const setPrefenrences = require('./src/util/set_preferences');
+const axios = require('axios')
 
 const createWindow = async () => {
     const additionalData = { myKey: 'self checkin server' }
@@ -35,13 +36,16 @@ const createWindow = async () => {
     const startServer = async() => {
         const connectionState = await cekKoneksi();
         console.log('connection state ',connectionState)
-
         if(connectionState === true){
+            win.webContents.send('CONNECTION-STATE', true)
             app.server = require('./index.js', (err)=>{
                 if(err){
                     console.log('Error start server ',err)
                 }
             })
+            await isRunning()
+        }else{
+            win.webContents.send('CONNECTION-STATE', connectionState)
         }
     }
 
@@ -64,6 +68,19 @@ const createWindow = async () => {
         startServer();
         win.webContents.send('LOAD-PREFERENCE', preferences());
     }
+}
+
+const isRunning = () =>{
+    return new Promise(async(resolve)=>{
+        try {
+            const urlServer = `http://${preferences().serverIp}:${preferences().port}`;            
+            const response = await axios.get(urlServer);
+            const responseData = response.data.state;
+            resolve(state)
+        } catch (error) {
+            resolve(error)
+        }
+})
 }
 
 app.whenReady().then(() => {

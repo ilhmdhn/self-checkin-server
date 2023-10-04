@@ -71,7 +71,7 @@
         line-height: 55px;
         font-size: 24px;
         font-weight: bold;
-        font-family: "Open Sans", sans-serif;
+        font-family:Verdana, Geneva, Tahoma, sans-serif;
         text-transform: uppercase;
         color: #fff;
         text-align: center;
@@ -176,7 +176,7 @@
 <body>
     <div class="Status">
         <img src="gear_icon_white.png" onclick="open_modal()">
-        <h1>Status</h1>
+        <h1>self checkin server</h1>
 
         <form class="form" method="post" action="#">
             <div>
@@ -209,12 +209,12 @@
                     <tr>
                         <th>Connection status</th>
                         <th>:</th>
-                        <th><b id="status" style="color: crimson;"></b></th>
+                        <th><b><em id="status" style="color: orange;">CONNECTING</em></b></th>
                     </tr>
                     <tr>
                         <th>Is running?</th>
                         <th>:</th>
-                        <th><b id="running" style="color: crimson;"></b></th>
+                        <th><b><em id="running" style="color: orange;"></em></b></th>
                     </tr>
                 </table>
             </div>
@@ -322,6 +322,9 @@
         if(data === true){
             stateConnection.innerHTML = 'CONNECTED';
             stateConnection.style.color = 'green';
+        }else{
+            stateConnection.innerHTML = data;
+            stateConnection.style.color = 'crimson';
         }
     });
 

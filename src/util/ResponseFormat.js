@@ -1,4 +1,4 @@
-module.exports = (state, message = 'SUCCESS', data) => {
+module.exports = (state, data, message = 'SUCCESS') => {
     return {
         state: state,
         message: message,
