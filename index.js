@@ -3,9 +3,10 @@ const express = require("express");
 const app = express();
 const bodyParser = require('body-parser');
 const preference = require('./src/util/preferences');
-
-
 const port = preference().port;
+
+//---------------IMPORT ROUTER--------------
+const roomRoute = require('./src/route/RoomRoute');
 
 //---------------CREATE MIDLEWARE--------------
 const loggerRequest = (req, res, next) =>{
@@ -34,3 +35,5 @@ app.get('/', async (req, res) =>{
         state: true
     });
 });
+
+app.use(roomRoute);
