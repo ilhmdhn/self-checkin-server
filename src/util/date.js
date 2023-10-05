@@ -17,7 +17,7 @@ const numberDate = () =>{
             }else{
                 const dayName = await dateName(dateTrans);
                 let dateNumber;
-            
+                console.log(dayName)
                 switch(dayName) {
                     case 'Sunday':
                         dateNumber = 1;
@@ -35,7 +35,7 @@ const numberDate = () =>{
                         dateNumber = 4;
                     break;
                     
-                    case 'Thrusday':
+                    case 'Thursday':
                         dateNumber = 5;
                     break;
                     

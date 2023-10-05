@@ -83,7 +83,6 @@ const getDateTime = () => {
                 type: Sequelize.QueryTypes.SELECT,
                 plain: true
             });
-            resolve('2023-10-05 01:54:21');
             resolve(time.time);
         } catch (err) {
             reject(err);
@@ -93,5 +92,6 @@ const getDateTime = () => {
 
 module.exports = {
     getShift,
-    getDateTrans
+    getDateTrans,
+    getDateTime
 }
