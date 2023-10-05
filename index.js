@@ -7,6 +7,7 @@ const port = preference().port;
 
 //---------------IMPORT ROUTER--------------
 const roomRoute = require('./src/route/RoomRoute');
+const testController = require("./src/controller/TestController");
 
 //---------------CREATE MIDLEWARE--------------
 const loggerRequest = (req, res, next) =>{
@@ -37,3 +38,6 @@ app.get('/', async (req, res) =>{
 });
 
 app.use(roomRoute);
+app.get('/test', (req, res)=>[
+    testController(req, res)
+])

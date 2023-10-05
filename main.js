@@ -43,7 +43,8 @@ const createWindow = async () => {
                     console.log('Error start server ',err)
                 }
             })
-            await isRunning()
+            const serverState = await isRunning()
+            win.webContents.send('SERVER-STATE', serverState)
         }else{
             win.webContents.send('CONNECTION-STATE', connectionState)
         }
@@ -76,7 +77,7 @@ const isRunning = () =>{
             const urlServer = `http://${preferences().serverIp}:${preferences().port}`;            
             const response = await axios.get(urlServer);
             const responseData = response.data.state;
-            resolve(state)
+            resolve(responseData)
         } catch (error) {
             resolve(error)
         }

@@ -214,7 +214,7 @@
                     <tr>
                         <th>Is running?</th>
                         <th>:</th>
-                        <th><b><em id="running" style="color: orange;"></em></b></th>
+                        <th><b><em id="running" style="color: orange;">STARTING</em></b></th>
                     </tr>
                 </table>
             </div>
@@ -325,6 +325,18 @@
         }else{
             stateConnection.innerHTML = data;
             stateConnection.style.color = 'crimson';
+        }
+    });
+
+    ipcRenderer.on('SERVER-STATE', (event, data)=>{
+        const stateServer = document.getElementById('running');
+
+        if(data === true){
+            stateServer.innerHTML = 'RUNNING';
+            stateServer.style.color = 'green';
+        }else{
+            stateServer.innerHTML = data;
+            stateServer.style.color = 'crimson';
         }
     });
 

@@ -8,6 +8,7 @@ const getRoomCategory = async(req, res) =>{
         const roomCategory = await sqlz.query('SELECT DISTINCT [Jenis_Kamar] FROM IHP_Room', {
             type: Sequelize.QueryTypes.SELECT,
         });
+        
         res.send(responseFormat(true, roomCategory))
     } catch (error) {
         res.send(responseFormat(false, [], error))
