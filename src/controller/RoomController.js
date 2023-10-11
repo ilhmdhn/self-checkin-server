@@ -201,8 +201,6 @@ const getDetailRoom = async(req, res) =>{
 
         const roomPrice = roomPriceTemp[0];
 
-        console.log('DEBUGGIN roomPrice', roomPrice)
-
         if(roomDetail.Status_Ready == 1 && roomDetail.Status_Checkin == 0 && roomDetail.Keterangan_Connect == 2){
             roomReady = true;
             roomMessage = "READY";
@@ -259,10 +257,10 @@ const roomPriceData = (req, res) =>{
             const priceTotal = serviceRoom + taxRoom + roomTotal;
 
             const data = {
-                room:roomTotal,
-                service_room: serviceRoom,
-                tax_room: taxRoom,
-                price_total : priceTotal,
+                room: Math.round(roomTotal),
+                service_room: Math.round(serviceRoom),
+                tax_room: Math.round(taxRoom),
+                price_total : Math.round(priceTotal),
                 detail:roomPrice
             }
             res.send(ResponseFormat(true, data));

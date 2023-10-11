@@ -8,8 +8,7 @@ const getShift = () => {
         try {
             const serverDateTime = await getDateTime()
             const dateTrans = await getDateTrans()
-            
-            console.log('DATE TRANS ', dateTrans)
+        
 
             const config = await configTable.findOne({
                 where: {
@@ -61,7 +60,6 @@ const getDateTrans = () =>{
             const closeTime = moment(config.Worktime_Finish, 'HH:mm:ss').format('HH:mm:ss');
             const changeShift = moment(config.Shifttime, 'HH:mm:ss').format('HH:mm:ss');
             const finishNextDay = config.Workdate_Finish;
-            console.log()
             if(timeNow >= openTime && timeNow <= '25:59:59'){
                 resolve(serverDateTime)
             }else{

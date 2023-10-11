@@ -30,7 +30,7 @@ module.exports = (roomCategory, duration) => {
                     ],
                     raw: true
                 });
-
+                
                 const tarifKamar = tarifKamarTemp[0];
                 const datetimeStart = moment(tarifKamar.Time_Start, timeFormat).format(dateTimeFormat);
                 const startTimeRounded = moment(tarifKamar.Time_Start, timeFormat).format(timeFormatRound);
@@ -78,7 +78,7 @@ module.exports = (roomCategory, duration) => {
 
             resolve(roomPriceDetail);
         } catch (err) {
-            reject(err);
+            reject(`RoomPriceCalculate ${err}`);
         }
     })
 }
