@@ -38,6 +38,8 @@ const getFnbPaging = async(req, res)=>{
                     image: apiResult[i].image,
                     id_global: item[0].InventoryID_Global,
                     price: item[0].Price,
+                    is_service: item[0].Service,
+                    is_tax: item[0].Pajak,
                     state: item[0].Status
                 })
             }

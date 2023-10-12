@@ -11,10 +11,10 @@ const getTaxService = async(req, res) =>{
         });
 
         const result = {
-            serviceRoom: taxService[0].Service_Persen_Room,
-            taxRoom: taxService[0].Tax_Persen_Room,
-            serviceFnb: taxService[0].Service_Persen_Food,
-            taxFnb: taxService[0].Tax_Persen_Food,
+            service_room: taxService[0].Service_Persen_Room,
+            tax_room: taxService[0].Tax_Persen_Room,
+            service_fnb: taxService[0].Service_Persen_Food,
+            tax_fnb: taxService[0].Tax_Persen_Food,
         };
 
         res.send(ResponseFormat(true, result));
