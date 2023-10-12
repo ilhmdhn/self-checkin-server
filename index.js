@@ -7,6 +7,7 @@ const port = preference().port;
 
 //---------------IMPORT ROUTER--------------
 const roomRoute = require('./src/route/RoomRoute');
+const fnbRoute = require('./src/route/FnbRoute');
 const testController = require("./src/controller/TestController");
 const { getDetailRoom } = require("./src/controller/RoomController");
 
@@ -39,6 +40,7 @@ app.get('/', async (req, res) =>{
 });
 
 app.use(roomRoute);
+app.use(fnbRoute);
 app.get('/test', (req, res)=>[
     testController(req, res)
 ])
