@@ -8,8 +8,10 @@ const port = preference().port;
 //---------------IMPORT ROUTER--------------
 const roomRoute = require('./src/route/RoomRoute');
 const fnbRoute = require('./src/route/FnbRoute');
+const pricingRoute = require('./src/route/PricingRoute');
 const testController = require("./src/controller/TestController");
 const { getDetailRoom } = require("./src/controller/RoomController");
+const { getFnbPaging } = require("./src/controller/FnbController");
 
 //---------------CREATE MIDLEWARE--------------
 const loggerRequest = (req, res, next) =>{
@@ -41,6 +43,7 @@ app.get('/', async (req, res) =>{
 
 app.use(roomRoute);
 app.use(fnbRoute);
+app.use(pricingRoute);
 app.get('/test', (req, res)=>[
-    testController(req, res)
+    getFnbPaging(req, res)
 ])
