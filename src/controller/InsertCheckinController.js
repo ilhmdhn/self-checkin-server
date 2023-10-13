@@ -7,7 +7,7 @@ const ResponseFormat = require('../util/ResponseFormat');
 
 const checkinPayLater = (req, res) =>{
     try {
-        console.log(JSON.stringify(req.body))
+        console.log(req.body)
         res.send(ResponseFormat(true))
     } catch (err) {
         res.send(ResponseFormat(false, null, err))
