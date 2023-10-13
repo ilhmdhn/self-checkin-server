@@ -45,5 +45,5 @@ app.use(roomRoute);
 app.use(fnbRoute);
 app.use(pricingRoute);
 app.get('/test', (req, res)=>[
-    getFnbPaging(req, res)
+    testController(req, res)
 ])
