@@ -9,6 +9,7 @@ const port = preference().port;
 const roomRoute = require('./src/route/RoomRoute');
 const fnbRoute = require('./src/route/FnbRoute');
 const pricingRoute = require('./src/route/PricingRoute');
+const checkinRoute = require('./src/route/CheckinRoute');
 const testController = require("./src/controller/TestController");
 const { getDetailRoom } = require("./src/controller/RoomController");
 const { getFnbPaging } = require("./src/controller/FnbController");
@@ -44,6 +45,7 @@ app.get('/', async (req, res) =>{
 app.use(roomRoute);
 app.use(fnbRoute);
 app.use(pricingRoute);
+app.use(checkinRoute);
 app.get('/test', (req, res)=>[
     testController(req, res)
 ])
