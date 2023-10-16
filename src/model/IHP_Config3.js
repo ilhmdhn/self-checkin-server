@@ -55,7 +55,7 @@ const IHP_Config3 = sql.define('IHP_Config3', {
         allowNull: true
     },
     CHTime: {
-        type: DataTypes.DATE,
+        type: DataTypes.STRING(19),
         allowNull: true
     },
     CHUsr: {

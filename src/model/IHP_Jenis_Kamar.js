@@ -27,7 +27,7 @@ const IHP_Jenis_Kamar = sql.define('IHP_Jenis_Kamar', {
     allowNull: true
   },
   CHTime: {
-    type: DataTypes.DATE,
+    type: DataTypes.STRING(19),
     allowNull: true
   },
   CHUsr: {

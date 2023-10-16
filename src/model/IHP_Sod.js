@@ -54,11 +54,11 @@ const IHP_Sod = sql.define('IHP_Sod', {
     allowNull: true
   },
   Tgl_Terima: {
-    type: DataTypes.DATE,
+    type: DataTypes.STRING(19),
     allowNull: true
   },
   Tgl_Kirim: {
-    type: DataTypes.DATE,
+    type: DataTypes.STRING(19),
     allowNull: true
   },
   Urut: {

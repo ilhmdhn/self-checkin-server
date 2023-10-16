@@ -31,8 +31,20 @@ module.exports = sql.define('IHP_Room', {
     type: DataTypes.STRING(1),
     allowNull: true
   },
+  Jam_Checkin: {
+    type: DataTypes.STRING(19),
+    allowNull: true
+  },
+  Jam_Masuk: {
+    type: DataTypes.STRING(19),
+    allowNull: true
+  },
+  Jam_Checkout: {
+    type: DataTypes.STRING(1),
+    allowNull: true
+  },
   CHTIME: {
-    type: DataTypes.DATE,
+    type: DataTypes.STRING(19),
     allowNull: true
   },
   CHUsr: {

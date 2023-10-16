@@ -43,7 +43,7 @@ const IHP_Config2 = sql.define('IHP_Config2', {
     allowNull: true
   },
   CHTime: {
-    type: DataTypes.DATE,
+    type: DataTypes.STRING(19),
     allowNull: true
   },
   CHusr: {
@@ -55,7 +55,7 @@ const IHP_Config2 = sql.define('IHP_Config2', {
     allowNull: true
   },
   Date_Trans: {
-    type: DataTypes.DATE,
+    type: DataTypes.STRING(19),
     allowNull: true
   },
   RUMUS_PAJAK_ROOM: {

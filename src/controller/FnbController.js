@@ -20,12 +20,8 @@ const getFnbPaging = async(req, res)=>{
         const result = [];
         const url = `https://adm.happypuppy.id/Api/fnb_outlet?page=${page}&outlet=${getPreferences().outlet}&category=${category}&search=${search}`
         
-        console.log(url);
-
         const apiResultTemp = await axios.get(`https://adm.happypuppy.id/Api/fnb_outlet?page=${page}&outlet=${getPreferences().outlet}&category=${category}&search=${search}`)
-        const apiResult = apiResultTemp.data.data;
-        
-        console.log(apiResult)
+        const apiResult = apiResultTemp.data.data;        
         
         if(apiResultTemp.data.state != true){
             throw apiResult.message;

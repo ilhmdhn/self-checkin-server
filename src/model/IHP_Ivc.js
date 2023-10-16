@@ -132,7 +132,7 @@ module.exports = sql.define('IHP_Ivc', {
     allowNull: true
   },
   Date_Trans: {
-    type: DataTypes.DATE,
+    type: DataTypes.STRING(19),
     allowNull: true
   },
   Jenis_Kamar: {

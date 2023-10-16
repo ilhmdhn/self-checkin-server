@@ -60,7 +60,7 @@ const IHP_Inventory = sql.define('IHP_Inventory', {
         allowNull: true
     },
     CHTime: {
-        type: DataTypes.DATE,
+        type: DataTypes.STRING(19),
         allowNull: true
     },
     CHUsr: {

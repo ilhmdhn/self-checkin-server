@@ -40,7 +40,7 @@ const IHP_Sol = sql.define('IHP_Sol', {
     allowNull: true
   },
   Date_Trans: {
-    type: DataTypes.DATE,
+    type: DataTypes.STRING(19),
     allowNull: true
   },
   Mobile_POS: {

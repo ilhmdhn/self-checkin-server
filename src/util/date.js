@@ -49,7 +49,7 @@ const numberDate = () =>{
 
                   resolve(dateNumber)
             }
-        } catch (error) {
+        } catch (err) {
             reject(err);
         }
     });

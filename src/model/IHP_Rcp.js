@@ -28,7 +28,7 @@ module.exports = sql.define('IHP_Rcp', {
       allowNull: true
     },
     Checkin: {
-      type: DataTypes.DATE,
+      type: DataTypes.STRING(19),
       allowNull: true
     },
     Jam_Sewa: {
@@ -40,7 +40,7 @@ module.exports = sql.define('IHP_Rcp', {
       allowNull: true
     },
     Checkout: {
-      type: DataTypes.DATE,
+      type: DataTypes.STRING(19),
       allowNull: true
     },
     QM1: {
@@ -143,8 +143,8 @@ module.exports = sql.define('IHP_Rcp', {
       type: DataTypes.STRING(60),
       allowNull: true
     },
-    Date_Trans: {
-      type: DataTypes.DATE,
+    Date_Trans:{
+      type: DataTypes.STRING(19),
       allowNull: true
     },
     Reception_Lama: {

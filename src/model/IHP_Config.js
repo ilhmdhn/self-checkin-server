@@ -59,7 +59,7 @@ const IHP_Config = sql.define('IHP_Config', {
         allowNull: true
     },
     CHTime: {
-        type: DataTypes.DATE,
+        type: DataTypes.STRING(19),
         allowNull: true
     },
     CHUsr: {
@@ -71,7 +71,7 @@ const IHP_Config = sql.define('IHP_Config', {
         allowNull: true
     },
     Date_Trans: {
-        type: DataTypes.DATE,
+        type: DataTypes.STRING(19),
         allowNull: true
     },
     GantiTarif1Date: {
