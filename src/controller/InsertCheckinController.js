@@ -3,6 +3,8 @@ const roomCheckinTable = require('../model/IHP_RoomCheckin');
 const roomTable = require('../model/IHP_Room');
 const rcpDetailRoomTable = require('../model/IHP_Rcp_DetailsRoom');
 const ivcTable = require('../model/IHP_Ivc');
+const solTable = require('../model/IHP_Sol');
+const sodTable = require('../model/IHP_Sod');
 const ResponseFormat = require('../util/ResponseFormat');
 const moment = require('moment');
 const ipTable = require('../model/IHP_IPAddress');
@@ -64,6 +66,7 @@ const checkinPayLater = async (req, res) => {
         const dateTimeFormated = moment(dateTime, 'YYYY-MM-DD HH:mm:ss').format('YYYY-MM-DD HH:mm:ss');
         const checkoutDatetime = moment(dateTimeFormated).add(checkinDuration, 'hour').format('YYYY-MM-DD HH:mm:ss');
 
+        /*
         await rcpTable.create({
             Reception: rcpCode,
             DATE: moment(dateTimeFormated).format('DD/MM/YYYY HH:mm:ss'),
@@ -164,6 +167,43 @@ const checkinPayLater = async (req, res) => {
                 Jenis_Kamar: roomCategory
             }
         })
+*/
+        console.log(fnbDetail)
+        if(fnbDetail){
+            await solTable.create({
+                SlipOrder: solCode,
+                DATE: moment(dateTimeFormated).format('DD/MM/YYYY HH:mm:ss'),
+                Shift: shift,
+                Reception: rcpCode,
+                Kamar: roomCode,
+                Status: '5',
+                Chtime: moment(dateTimeFormated).format('DD/MM/YYYY HH:mm:ss'),
+                CHusr: 'SELF CHECKIN',
+                POS: '',
+                Date_Trans: dateTrans,
+                Mobile_POS: '',
+            });
+
+            for(let i = 0; i<fnbDetail.length; i++){
+                await sodTable.create({
+                    SlipOrder: solCode,
+                    Inventory: fnbDetail[i].id_local,
+                    Nama: fnbDetail[i].item_name,
+                    Price: fnbDetail[i].price,
+                    Qty: fnbDetail[i].qty,
+                    Qty_Terima: fnbDetail[i].qty,
+                    Total: fnbDetail[i].price * fnbDetail[i].qty,
+                    Status: '5',
+                    Location: fnbDetail[i].location,
+                    Printed: '',
+                    Note: fnbDetail[i].note,
+                    CHUsr: 'SELF CHECKIN',
+                    Tgl_Terima: '',
+                    Tgl_Kirim: '',
+                    Urut: i+1
+                });
+            }
+        }
 
         const ipVod = await ipTable.findAll({
             where:{

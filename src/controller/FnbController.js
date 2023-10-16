@@ -47,6 +47,7 @@ const getFnbPaging = async(req, res)=>{
                         id_global: element.InventoryID_Global,
                         price: element.Price,
                         is_service: element.Service,
+                        location: element.Location,
                         is_tax: element.Pajak,
                         state: element.Status
                     }) 
