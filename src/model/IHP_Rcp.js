@@ -187,10 +187,6 @@ module.exports = sql.define('IHP_Rcp', {
       type: DataTypes.STRING(200),
       allowNull: true
     },
-    Printed_Slip_Checkin: {
-      type: DataTypes.STRING(2),
-      allowNull: true
-    },
     Member_Rev: {
       type: DataTypes.STRING(16),
       allowNull: true

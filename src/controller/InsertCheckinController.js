@@ -1,5 +1,5 @@
 const rcpTable = require('../model/IHP_Rcp');
-const roomCheckinTable = require('../model/IHP_Room_Price');
+const roomCheckinTable = require('../model/IHP_RoomCheckin');
 const roomTable = require('../model/IHP_Room');
 const rcpDetailRoomTable = require('../model/IHP_Rcp_DetailsRoom');
 const ivcTable = require('../model/IHP_Ivc');
@@ -9,7 +9,7 @@ const roomPriceTable = require('../model/IHP_Room_Price');
 const ResponseFormat = require('../util/ResponseFormat');
 const moment = require('moment');
 const ipTable = require('../model/IHP_IPAddress');
-var dgram = require('dgram');
+const dgram = require('dgram');
 
 const {
     generateRcpCode,
@@ -171,8 +171,8 @@ const checkinPayLater = async (req, res) => {
 
         if(roomPriceDetail){
             for(let i = 0; i<roomPriceDetail.length; i++){
-                console.log(roomPriceDetail[i])
-                await roomCheckinTable.create({
+                console.log('DELOK ',roomPriceDetail[i])
+                await roomPriceTable.create({
                     reception: rcpCode,
                     room: roomCode,
                     day: dateNumber,
@@ -242,14 +242,11 @@ const checkinPayLater = async (req, res) => {
             const portVod2 = ipVod[0].Server_Udp_Port;
 
             const socket = dgram.createSocket('udp4');
-            console.log(`SEND SIGNAL TO VOD 2 TIMER IP: ${ipVod2} port: ${portVod2}`);
             socket.send('TIMER VOD2B', 0, 10, portVod2, ipVod2, (err, bytes) => {
                 socket.close()
             });
         }
-        setLoc.add(1)
-        setLoc.add(2)
-        setLoc.add(3)
+
         for (const loc of setLoc) {
             if (loc == '2') {
 
@@ -281,10 +278,10 @@ const checkinPayLater = async (req, res) => {
             }
         }
 
-        res.send(ResponseFormat(true))
+        res.send(ResponseFormat(true));
     } catch (err) {
         console.log(err)
-        res.send(ResponseFormat(false, null, err))
+        res.send(ResponseFormat(false, null, err));
     }
 }
 

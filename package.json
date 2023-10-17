@@ -11,13 +11,17 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@develoka/angka-rupiah-js": "^1.0.3",
     "axios": "^1.5.1",
     "body-parser": "^1.20.2",
     "electron-store": "^8.1.0",
+    "escpos": "^3.0.0-alpha.6",
+    "escpos-usb": "^3.0.0-alpha.4",
     "express": "^4.18.2",
     "moment": "^2.29.4",
     "sequelize": "^5.22.5",
     "tedious": "^6.0.0",
+    "usb": "^1.9.2",
     "winston": "^2.4.4"
   },
   "devDependencies": {
