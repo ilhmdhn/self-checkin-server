@@ -1,5 +1,5 @@
 const { DataTypes } = require('sequelize');
-const sql = require('../../util/sequelize/initiate_database');
+const sql = require('../util/sqlz');
 
 const IHP_Room_Price = sql.define('IHP_Room_Price',{
     id:{
@@ -37,12 +37,12 @@ const IHP_Room_Price = sql.define('IHP_Room_Price',{
         allowNull: false,
         defaultValue: 0
     },
-    used_minute:{
+    used_minute: {
         type: DataTypes.SMALLINT,
         allowNull: false,
         defaultValue: 0
     },
-    reduce_duration:{
+    reduce_duration: {
         type: DataTypes.SMALLINT,
         allowNull: false,
         defaultValue: 0

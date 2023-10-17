@@ -1,10 +1,11 @@
 const rcpTable = require('../model/IHP_Rcp');
-const roomCheckinTable = require('../model/IHP_RoomCheckin');
+const roomCheckinTable = require('../model/IHP_Room_Price');
 const roomTable = require('../model/IHP_Room');
 const rcpDetailRoomTable = require('../model/IHP_Rcp_DetailsRoom');
 const ivcTable = require('../model/IHP_Ivc');
 const solTable = require('../model/IHP_Sol');
 const sodTable = require('../model/IHP_Sod');
+const roomPriceTable = require('../model/IHP_Room_Price');
 const ResponseFormat = require('../util/ResponseFormat');
 const moment = require('moment');
 const ipTable = require('../model/IHP_IPAddress');
@@ -28,6 +29,7 @@ const {
 
 const checkinPayLater = async (req, res) => {
     try {
+        const setLoc = new Set();
         const pax = req.body.pax;
         const roomCategory = req.body.room_category;
         const roomCode = req.body.room_code;
@@ -66,7 +68,6 @@ const checkinPayLater = async (req, res) => {
         const dateTimeFormated = moment(dateTime, 'YYYY-MM-DD HH:mm:ss').format('YYYY-MM-DD HH:mm:ss');
         const checkoutDatetime = moment(dateTimeFormated).add(checkinDuration, 'hour').format('YYYY-MM-DD HH:mm:ss');
 
-        /*
         await rcpTable.create({
             Reception: rcpCode,
             DATE: moment(dateTimeFormated).format('DD/MM/YYYY HH:mm:ss'),
@@ -126,7 +127,7 @@ const checkinPayLater = async (req, res) => {
             Service_Kamar: Math.round(roomService),
             Tax_Kamar: Math.round(roomTax),
             Total_Kamar: Math.round(roomTotal),
-            Charge_Penjualan: Math.round(fnbPrice), 
+            Charge_Penjualan: Math.round(fnbPrice),
             Total_Cancelation: 0,
             Discount_Penjualan: 0,
             Service_Penjualan: Math.round(fnbService),
@@ -161,30 +162,54 @@ const checkinPayLater = async (req, res) => {
             Jam_Checkout: checkoutDatetime,
             Status_Checkin: 1,
             Nama_Tamu_Alias: memberName
-        },{
-            where:{
+        }, {
+            where: {
                 Kamar: roomCode,
                 Jenis_Kamar: roomCategory
             }
         })
-*/
-        console.log(fnbDetail)
-        if(fnbDetail){
+
+        if(roomPriceDetail){
+            for(let i = 0; i<roomPriceDetail.length; i++){
+                console.log(roomPriceDetail[i])
+                await roomCheckinTable.create({
+                    reception: rcpCode,
+                    room: roomCode,
+                    day: dateNumber,
+                    start_time: roomPriceDetail[i].start_time,
+                    finish_time: roomPriceDetail[i].finish_time,
+                    price: roomPriceDetail[i].price,
+                    price_per_minute: roomPriceDetail[i].price_per_minute,
+                    used_minute: roomPriceDetail[i].used_minute,
+                    reduce_duration: '',
+                    overpax: '',
+                    overpax_price: '',
+                    promo_percent: '',
+                    room_total: roomPriceDetail[i].room_total,
+                    promo_total: '',
+                    price_total: roomPriceDetail[i].price_total,
+                    is_extend:''
+                });
+            }
+        }
+
+        if (fnbDetail) {
             await solTable.create({
                 SlipOrder: solCode,
                 DATE: moment(dateTimeFormated).format('DD/MM/YYYY HH:mm:ss'),
                 Shift: shift,
                 Reception: rcpCode,
                 Kamar: roomCode,
-                Status: '5',
+                Status: '1',
                 Chtime: moment(dateTimeFormated).format('DD/MM/YYYY HH:mm:ss'),
                 CHusr: 'SELF CHECKIN',
-                POS: '',
+                POS: '192.168.1.19',
                 Date_Trans: dateTrans,
                 Mobile_POS: '',
             });
 
-            for(let i = 0; i<fnbDetail.length; i++){
+            for (let i = 0; i < fnbDetail.length; i++) {
+                setLoc.add(fnbDetail[i].location)
                 await sodTable.create({
                     SlipOrder: solCode,
                     Inventory: fnbDetail[i].id_local,
@@ -193,34 +218,67 @@ const checkinPayLater = async (req, res) => {
                     Qty: fnbDetail[i].qty,
                     Qty_Terima: fnbDetail[i].qty,
                     Total: fnbDetail[i].price * fnbDetail[i].qty,
-                    Status: '5',
+                    Status: '3',
                     Location: fnbDetail[i].location,
-                    Printed: '',
+                    Printed: '2',
                     Note: fnbDetail[i].note,
                     CHUsr: 'SELF CHECKIN',
-                    Tgl_Terima: '',
-                    Tgl_Kirim: '',
-                    Urut: i+1
+                    Tgl_Terima: dateTimeFormated,
+                    // Tgl_Kirim: dateTimeFormated,
+                    Urut: i + 1
                 });
             }
         }
 
         const ipVod = await ipTable.findAll({
-            where:{
+            where: {
                 Aplikasi: 'TIMER VOD2B'
             },
             raw: true
         });
 
-        if(ipVod){
+        if (ipVod) {
             const ipVod2 = ipVod[0].IP_Address;
             const portVod2 = ipVod[0].Server_Udp_Port;
 
             const socket = dgram.createSocket('udp4');
             console.log(`SEND SIGNAL TO VOD 2 TIMER IP: ${ipVod2} port: ${portVod2}`);
-            socket.send('TIMER VOD2B', 0, 10, portVod2, ipVod2, (err, bytes)=>[
+            socket.send('TIMER VOD2B', 0, 10, portVod2, ipVod2, (err, bytes) => {
                 socket.close()
-            ]);
+            });
+        }
+        setLoc.add(1)
+        setLoc.add(2)
+        setLoc.add(3)
+        for (const loc of setLoc) {
+            if (loc == '2') {
+
+                const socketKitchen = dgram.createSocket('udp4');
+                const ipKitchen = await ipTable.findAll({
+                    where: {
+                        Aplikasi: 'KITCHEN'
+                    },
+                    raw: true
+                });
+
+                socketKitchen.send('SLIP_ORDER_FRONT_OFFICE', 0, 23, ipKitchen[0].Server_Udp_Port, ipKitchen[0].IP_Address, (err, bytes) => {
+                    socketKitchen.close();
+                });
+            }
+
+            if (loc == '3') {
+                const socketBar = dgram.createSocket('udp4');
+                const ipBar = await ipTable.findAll({
+                    where: {
+                        Aplikasi: 'BAR'
+                    },
+                    raw: true
+                });
+
+                socketBar.send('SLIP_ORDER_FRONT_OFFICE', 0, 23, ipBar[0].Server_Udp_Port, ipBar[0].IP_Address, (err, bytes) => {
+                    socketBar.close();
+                })
+            }
         }
 
         res.send(ResponseFormat(true))
