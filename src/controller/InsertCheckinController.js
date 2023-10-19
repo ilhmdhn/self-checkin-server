@@ -14,7 +14,8 @@ const dgram = require('dgram');
 const {
     generateRcpCode,
     generateIvcCode,
-    generateSolCode
+    generateSolCode,
+    getUrutSod
 } = require('../util/GenerateCode');
 
 const {
@@ -26,6 +27,7 @@ const {
 const {
     numberDate
 } = require('../util/date');
+const { printBill } = require('../util/Print');
 
 const checkinPayLater = async (req, res) => {
     try {
@@ -169,7 +171,7 @@ const checkinPayLater = async (req, res) => {
             }
         })
 
-        if(roomPriceDetail){
+        if(roomPriceDetail.length > 0){
             for(let i = 0; i<roomPriceDetail.length; i++){
                 console.log('DELOK ',roomPriceDetail[i])
                 await roomPriceTable.create({
@@ -193,7 +195,7 @@ const checkinPayLater = async (req, res) => {
             }
         }
 
-        if (fnbDetail) {
+        if (fnbDetail.length>0) {
             await solTable.create({
                 SlipOrder: solCode,
                 DATE: moment(dateTimeFormated).format('DD/MM/YYYY HH:mm:ss'),
@@ -207,7 +209,7 @@ const checkinPayLater = async (req, res) => {
                 Date_Trans: dateTrans,
                 Mobile_POS: '',
             });
-
+            const latestUrut = await getUrutSod()
             for (let i = 0; i < fnbDetail.length; i++) {
                 setLoc.add(fnbDetail[i].location)
                 await sodTable.create({
@@ -225,19 +227,19 @@ const checkinPayLater = async (req, res) => {
                     CHUsr: 'SELF CHECKIN',
                     Tgl_Terima: dateTimeFormated,
                     // Tgl_Kirim: dateTimeFormated,
-                    Urut: i + 1
+                    Urut: latestUrut + 1
                 });
             }
         }
-
         const ipVod = await ipTable.findAll({
             where: {
                 Aplikasi: 'TIMER VOD2B'
             },
             raw: true
         });
-
-        if (ipVod) {
+        console.log('IPVOD RESULT ', ipVod)
+        if (ipVod && (ipVod.length>0)) {
+            console.log('KELOLOSAN KAH?')
             const ipVod2 = ipVod[0].IP_Address;
             const portVod2 = ipVod[0].Server_Udp_Port;
 
@@ -257,10 +259,11 @@ const checkinPayLater = async (req, res) => {
                     },
                     raw: true
                 });
-
-                socketKitchen.send('SLIP_ORDER_FRONT_OFFICE', 0, 23, ipKitchen[0].Server_Udp_Port, ipKitchen[0].IP_Address, (err, bytes) => {
-                    socketKitchen.close();
-                });
+                if(ipKitchen.length>0){                    
+                    socketKitchen.send('SLIP_ORDER_FRONT_OFFICE', 0, 23, ipKitchen[0].Server_Udp_Port, ipKitchen[0].IP_Address, (err, bytes) => {
+                        socketKitchen.close();
+                    });
+                }
             }
 
             if (loc == '3') {
@@ -271,17 +274,17 @@ const checkinPayLater = async (req, res) => {
                     },
                     raw: true
                 });
-
-                socketBar.send('SLIP_ORDER_FRONT_OFFICE', 0, 23, ipBar[0].Server_Udp_Port, ipBar[0].IP_Address, (err, bytes) => {
-                    socketBar.close();
-                })
+                if(ipBar.length>0){
+                    socketBar.send('SLIP_ORDER_FRONT_OFFICE', 0, 23, ipBar[0].Server_Udp_Port, ipBar[0].IP_Address, (err, bytes) => {
+                        socketBar.close();
+                    })
+                }
             }
         }
-
+        printBill(rcpCode)
         res.send(ResponseFormat(true));
     } catch (err) {
-        console.log(err)
-        res.send(ResponseFormat(false, null, err));
+        res.send(ResponseFormat(false, null, err.message));
     }
 }
 

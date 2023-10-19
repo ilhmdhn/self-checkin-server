@@ -8,6 +8,7 @@ const rcpTable = require('../model/IHP_Rcp');
 const ivcTable = require('../model/IHP_Ivc');
 const solTable = require('../model/IHP_Sol');
 const sodTable = require('../model/IHP_Sod');
+const { text } = require('body-parser');
 
 const printBill = async (rcpCode) => {
     try {
@@ -78,30 +79,32 @@ const printBill = async (rcpCode) => {
                 .align('ct')
                 .style('n')
                 .size(0.01, 0.01)
-                .text('')
-                .text('')
+                .newLine()
+                .newLine()
                 .text(configData.Nama_Outlet.toUpperCase())
                 .text(configData.Alamat_Outlet)
                 .text(configData.Alamat_Outlet2)
                 .text(configData.Kota)
                 .text(configData.Tlp1)
-                .text('')
+                .newLine()
+                .style('b')
                 .text('TAGIHAN')
+                .style('n')
                 .align('lt')
-                .text('')
+                .newLine()
                 .text(`Ruangan : ${rcpData.Kamar}`)
                 .text(`Nama    : ${rcpData.Nama}`)
                 .text(`Tanggal : ${rcpData.DATE}`)
-                .text('')
+                .newLine()
                 .text('Sewa Ruangan')
                 .tableCustom([
                     { text: `${checkinTime.slice(11, 16)} - ${checkoutTime.slice(11, 16)}`, align: "LEFT" },
                     { text: `${toRupiah(ivcData.Sewa_Kamar, { symbol: null, floatingPoint: 0 })}`, align: "RIGHT" },
                 ]);
-                printer.text('')
+                printer.newLine()
                 if(listFnB){
                     printer.text('Rincian Penjualan')
-                    printer.text('')
+                    printer.newLine()
                         listFnB.forEach(element =>{
                             printer.text(element.itemName)
                             printer.tableCustom([
@@ -110,7 +113,54 @@ const printBill = async (rcpCode) => {
                             ]);
                         });
                 }
-                printer.close()
+                printer
+                .drawLine()
+                .tableCustom([
+                    { text: `Jumlah Ruangan`, align: "LEFT" },
+                    { text: `${toRupiah(ivcData.Total_Kamar, { symbol: null, floatingPoint: 0 })}`, align: "RIGHT" },
+                ]);
+                if(listFnB){
+                   printer.tableCustom([
+                        { text: `Jumlah Penjualan`, align: "LEFT" },
+                        { text: `${toRupiah(ivcData.Total_Penjualan, { symbol: null, floatingPoint: 0 })}`, align: "RIGHT" },
+                    ]);
+                }
+                printer.drawLine()
+                printer.tableCustom([
+                    { text: ``, align: "LEFT" },
+                    { text: `Jumlah`, align: "RIGHT" },
+                    { text: `${toRupiah(ivcData.Total_Kamar + ivcData.Total_Penjualan, { symbol: null, floatingPoint: 0 })}`, align: "RIGHT" },
+                ]);
+                printer.tableCustom([
+                    { text: ``, align: "LEFT" },
+                    { text: `Service`, align: "RIGHT" },
+                    { text: `${toRupiah(ivcData.Service_Kamar + ivcData.Service_Penjualan, { symbol: null, floatingPoint: 0 })}`, align: "RIGHT" },
+                ]);
+                printer.tableCustom([
+                    { text: ``, align: "LEFT" },
+                    { text: `Pajak`, align: "RIGHT" },
+                    { text: `${toRupiah(ivcData.Tax_Kamar + ivcData.Tax_Penjualan, { symbol: null, floatingPoint: 0 })}`, align: "RIGHT" },
+                ]);
+                printer.tableCustom([
+                    { text: ``, align: "LEFT" },
+                    { text: ``, align: "RIGHT" },
+                    { text: `-----------`, align: "RIGHT" },
+                ]);
+                printer.tableCustom([
+                    { text: ``, align: "LEFT" },
+                    { text: `Total`, align: "RIGHT" },
+                    { text: `${toRupiah(ivcData.Total_All, { symbol: null, floatingPoint: 0 })}`, align: "RIGHT" },
+                ]);
+                printer
+                    .newLine()
+                    .size(1,0.1)
+                    .align('ct')
+                    .style('b')
+                    .text(`${toRupiah(ivcData.Total_All, {floatingPoint: 0 })}`)
+                    .newLine()
+                    .newLine()
+                    .newLine()
+                    .close()
         });
         console.log(`Bar ngeprint`)
     } catch (err) {

@@ -36,8 +36,7 @@ const getFnbPaging = async(req, res)=>{
                 raw: true
             });
 
-            if(item){
-                // console.log(item)
+            if(item && (item.length>0)){
                 item.forEach(element => {
                     result.push({
                         id_item: element.Inventory,

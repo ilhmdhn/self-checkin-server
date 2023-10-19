@@ -78,13 +78,38 @@ const generateSolCode = () =>{
             if(!latest){
                 buildCode = buildCode + '0001'
             }else{
-                const latestNumber = parseInt(latest.SlipOrder.slice(-4)) + 1
-                const buildOrder = latestNumber.toString().padStart(4, 0);
+                const latestNumber = parseInt(latest.SlipOrder.slice(-5)) + 1
+                const buildOrder = latestNumber.toString().padStart(5, 0);
                 buildCode = buildCode + buildOrder;
             }
             resolve(buildCode);
         } catch (err) {
             reject(err);
+        }
+    });
+}
+
+const getUrutSod = () =>{
+    return new Promise(async(resolve, reject)=>{
+        try {
+            const initialCode = await getInitialCode();
+            const dateTimeNow = await getDateTime()
+            const dateFormat = moment(dateTimeNow, 'YYYY-MM-DD HH:mm:ss').format('YYMMDD');
+            let buildCode = initialCode.SOL + '-'+dateFormat;
+            let urut = 1;
+
+            const latest = await sqlz.query(`SELECT TOP 1 Urut FROM IHP_Sol WHERE SlipOrder LIKE '${buildCode}%' ORDER BY SlipOrder DESC`,{
+                type: Sequelize.QueryTypes.SELECT,
+                plain: true
+            });
+
+            if(latest){
+                urut = latest.Urut + 1
+            }
+
+            resolve(urut);
+        } catch (err) {
+            resolve(0)
         }
     });
 }
@@ -108,5 +133,6 @@ const getInitialCode = () =>{
 module.exports = {
     generateRcpCode,
     generateIvcCode,
-    generateSolCode
+    generateSolCode,
+    getUrutSod
 }
