@@ -4,11 +4,13 @@ const ResponseFormat = require("../util/ResponseFormat");
 const RoomPriceCalculate = require("../util/RoomPriceCalculate");
 const { getShift } = require("../util/WorkTime");
 const { isMbl } = require("../util/date")
+const {directPayment} = require('../controller/PaymentController');
+const { generateQrisPayment } = require("./XenditController");
 
 const testController = async (req, res) =>{
     try {
-        printBill('RCP-2310170010')
-        res.send(ResponseFormat(true,))
+        generateQrisPayment(req, res)
+        // res.send(ResponseFormat(true,))
     } catch (err) {
         res.send(ResponseFormat(false, null, err.toString()))
     }

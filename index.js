@@ -10,9 +10,11 @@ const roomRoute = require('./src/route/RoomRoute');
 const fnbRoute = require('./src/route/FnbRoute');
 const pricingRoute = require('./src/route/PricingRoute');
 const checkinRoute = require('./src/route/CheckinRoute');
+const paymentRoute = require('./src/route/PaymentRoute');
 const testController = require("./src/controller/TestController");
 const { getDetailRoom } = require("./src/controller/RoomController");
 const { getFnbPaging } = require("./src/controller/FnbController");
+const { listPaymentMethod, generateQrisPayment } = require("./src/controller/PaymentController");
 
 //---------------CREATE MIDLEWARE--------------
 const loggerRequest = (req, res, next) =>{
@@ -46,6 +48,11 @@ app.use(roomRoute);
 app.use(fnbRoute);
 app.use(pricingRoute);
 app.use(checkinRoute);
+app.use(paymentRoute);
+
 app.get('/test', (req, res)=>[
-    testController(req, res)
+    listPaymentMethod(req, res)
+])
+app.get('/test2', (req, res)=>[
+    generateQrisPayment(req, res)
 ])
