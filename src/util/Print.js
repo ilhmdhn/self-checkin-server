@@ -88,7 +88,7 @@ const printBill = async (rcpCode) => {
                 .text(configData.Tlp1)
                 .newLine()
                 .style('b')
-                .text('TAGIHAN')
+                .text('INVOICE')
                 .style('n')
                 .align('lt')
                 .newLine()

@@ -89,6 +89,33 @@ const generateSolCode = () =>{
     });
 }
 
+const generateSummaryCode = () =>{
+    return new Promise(async(resolve, reject)=>{
+        try {
+            const initialCode = await getInitialCode();
+            const dateTimeNow = await getDateTime()
+            const dateFormat = moment(dateTimeNow, 'YYYY-MM-DD HH:mm:ss').format('YYMMDD');
+            let buildCode = initialCode.SUM + '-'+dateFormat;
+
+            const latest = await sqlz.query(`SELECT TOP 1 Summary FROM IHP_Sul WHERE Summary LIKE '${buildCode}%' ORDER BY SUmmary DESC`,{
+                type: Sequelize.QueryTypes.SELECT,
+                plain: true
+            });
+
+            if(!latest){
+                buildCode = buildCode + '0001'
+            }else{
+                const latestNumber = parseInt(latest.Summary.slice(-5)) + 1
+                const buildOrder = latestNumber.toString().padStart(5, 0);
+                buildCode = buildCode + buildOrder;
+            }
+            resolve(buildCode)
+        } catch (err) {
+            reject(err);
+        }
+    });
+}
+
 const getUrutSod = () =>{
     return new Promise(async(resolve, reject)=>{
         try {
@@ -134,5 +161,6 @@ module.exports = {
     generateRcpCode,
     generateIvcCode,
     generateSolCode,
-    getUrutSod
+    getUrutSod,
+    generateSummaryCode
 }
