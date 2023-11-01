@@ -6,6 +6,9 @@ const ivcTable = require('../model/IHP_Ivc');
 const solTable = require('../model/IHP_Sol');
 const sodTable = require('../model/IHP_Sod');
 const roomPriceTable = require('../model/IHP_Room_Price');
+const sulTable = require('../model/IHP_Sul');
+const sudTable = require('../model/IHP_Sud');
+const selfCheckinOrderTable = require('../model/IHP_Self_Checkin_Order');
 const ResponseFormat = require('../util/ResponseFormat');
 const moment = require('moment');
 const ipTable = require('../model/IHP_IPAddress');
@@ -288,7 +291,7 @@ const checkinPayLater = async (req, res) => {
     }
 }
 
-const insertCheckin = (dataCheckin) =>{
+const insertCheckin = (dataCheckin, paymentMethod, paymentChannel, transactionId, amount, fee) =>{
     return new Promise(async(resolve, reject)=>{
         try {
             const setLoc = new Set();
@@ -300,6 +303,8 @@ const insertCheckin = (dataCheckin) =>{
             const shift = await getShift()
             const dateTrans = await getDateTrans();
             const dateNumber = await numberDate();
+
+            console.log('KODE SUMMARY '+sulCode)
 
             const pax = dataCheckin.pax;
             const roomCategory = dataCheckin.room_category;
@@ -315,8 +320,8 @@ const insertCheckin = (dataCheckin) =>{
             const fnbTax = dataCheckin.fnb_tax;
             const fnbTotal = dataCheckin.fnb_total;
             const fnbDetail = dataCheckin.fnb_detail;
-            const memberName = req.body.member_name;
-            let memberCode = req.body.member_code;
+            const memberName = dataCheckin.member_name;
+            let memberCode = dataCheckin.member_code;
 
             if (memberName == memberCode) {
                 if (memberName > 8) {
@@ -335,7 +340,7 @@ const insertCheckin = (dataCheckin) =>{
 
             const dateTimeFormated = moment(dateTime, 'YYYY-MM-DD HH:mm:ss').format('YYYY-MM-DD HH:mm:ss');
             const checkoutDatetime = moment(dateTimeFormated).add(checkinDuration, 'hour').format('YYYY-MM-DD HH:mm:ss');
-
+            console.log('1')
             await rcpTable.create({
                 Reception: rcpCode,
                 DATE: moment(dateTimeFormated).format('DD/MM/YYYY HH:mm:ss'),
@@ -379,6 +384,7 @@ const insertCheckin = (dataCheckin) =>{
                 Complete: '0'
             });
 
+            console.log('1')
             await ivcTable.create({
                 Invoice: ivcCode,
                 DATE: moment(dateTimeFormated).format('DD/MM/YYYY HH:mm:ss'),
@@ -416,11 +422,13 @@ const insertCheckin = (dataCheckin) =>{
                 Jenis_Kamar: roomCategory
             });
     
+            console.log('1')
             await roomCheckinTable.create({
                 Kamar: roomCode,
                 Reception: rcpCode
             });
 
+            console.log('1')
             await roomTable.update({
                 Reception: rcpCode,
                 Nama_Tamu: memberName,
@@ -437,6 +445,7 @@ const insertCheckin = (dataCheckin) =>{
                 }
             });
 
+            console.log('1')
             if(roomPriceDetail.length > 0){
                 for(let i = 0; i<roomPriceDetail.length; i++){
                     console.log('DELOK ',roomPriceDetail[i])
@@ -461,6 +470,7 @@ const insertCheckin = (dataCheckin) =>{
                 }
             }
 
+            console.log('1')
             if (fnbDetail.length>0) {
                 await solTable.create({
                     SlipOrder: solCode,
@@ -475,7 +485,9 @@ const insertCheckin = (dataCheckin) =>{
                     Date_Trans: dateTrans,
                     Mobile_POS: '',
                 });
+
                 const latestUrut = await getUrutSod()
+
                 for (let i = 0; i < fnbDetail.length; i++) {
                     setLoc.add(fnbDetail[i].location)
                     await sodTable.create({
@@ -496,6 +508,48 @@ const insertCheckin = (dataCheckin) =>{
                     });
                 }
             }
+            console.log('aaa');
+            await sulTable.create({
+                Summary: sulCode,
+                DATE: moment(dateTimeFormated).format('DD/MM/YYYY HH:mm:ss'),
+                Shift: shift,
+                Reception: rcpCode,
+                Member: memberCode,
+                Nama: memberName,
+                Kamar: roomCode,
+                Total: amount,
+                Chtime: moment(dateTimeFormated).format('DD/MM/YYYY HH:mm:ss'),
+                Chusr: 'SELF CHECKIN',
+                Printed: '',
+                Flag: '',
+                Posted: '',
+                Export: '',
+                INVOICE: ivcCode,
+                Date_Trans: dateTrans,
+                Bayar: amount,
+                Kembali: 0,
+                Number: '',
+                Flag_Notif: '',
+                Flag_Pos_Invoice_Web: ''
+            });
+
+            await sudTable.create({
+                Summary: sulCode,
+                ID_Payment: 99,
+                Nama_Payment: 'PAYMENT GATEWAY',
+                Member: memberCode,
+                Nama: memberName,
+                Input1: '',
+                Input2: '',
+                Input3: '',
+                Input4: '',
+                Pay_Value: amount,
+                EDC_Machine: '',
+                Status: 0,
+                Flag: '',
+            });
+
+
             const ipVod = await ipTable.findAll({
                 where: {
                     Aplikasi: 'TIMER VOD2B'
@@ -544,13 +598,22 @@ const insertCheckin = (dataCheckin) =>{
                         })
                     }
                 }
-            }
-
-            
-
+            }            
+            await selfCheckinOrderTable.create({
+                reception: rcpCode,
+                payment_method: paymentMethod,
+                payment_channel: paymentChannel,
+                id_transaction: transactionId,
+                checkin_amount: amount,
+                payment_fee: fee,
+                checkin_data: dataCheckin,
+            })
+            console.log('teru')
+            resolve(true)
             printBill(rcpCode)
         } catch (err) {
-            
+            console.log('fales '+err.toString())
+            reject(err)
         }
     });
 }

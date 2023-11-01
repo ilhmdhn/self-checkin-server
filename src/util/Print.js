@@ -8,7 +8,8 @@ const rcpTable = require('../model/IHP_Rcp');
 const ivcTable = require('../model/IHP_Ivc');
 const solTable = require('../model/IHP_Sol');
 const sodTable = require('../model/IHP_Sod');
-const { text } = require('body-parser');
+const selfCheckinOrderTable = require('../model/IHP_Self_Checkin_Order');
+
 
 const printBill = async (rcpCode) => {
     try {
