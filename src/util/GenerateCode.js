@@ -76,9 +76,9 @@ const generateSolCode = () =>{
             });
 
             if(!latest){
-                buildCode = buildCode + '0001'
+                buildCode = buildCode + '00001'
             }else{
-                const latestNumber = parseInt(latest.SlipOrder.slice(-5)) + 1
+                const latestNumber = parseInt(latest.SlipOrder.slice(-4)) + 1
                 const buildOrder = latestNumber.toString().padStart(5, 0);
                 buildCode = buildCode + buildOrder;
             }
@@ -105,8 +105,8 @@ const generateSummaryCode = () =>{
             if(!latest){
                 buildCode = buildCode + '0001'
             }else{
-                const latestNumber = parseInt(latest.Summary.slice(-5)) + 1
-                const buildOrder = latestNumber.toString().padStart(5, 0);
+                const latestNumber = parseInt(latest.Summary.slice(-4)) + 1
+                const buildOrder = latestNumber.toString().padStart(4, 0);
                 buildCode = buildCode + buildOrder;
             }
             resolve(buildCode)
@@ -123,14 +123,17 @@ const getUrutSod = () =>{
             const dateTimeNow = await getDateTime()
             const dateFormat = moment(dateTimeNow, 'YYYY-MM-DD HH:mm:ss').format('YYMMDD');
             let buildCode = initialCode.SOL + '-'+dateFormat;
-            let urut = 1;
+            let urut = 0;
 
-            const latest = await sqlz.query(`SELECT TOP 1 Urut FROM IHP_Sol WHERE SlipOrder LIKE '${buildCode}%' ORDER BY SlipOrder DESC`,{
+            const latest = await sqlz.query(`SELECT TOP 1 Urut FROM IHP_Sod WHERE SlipOrder LIKE '${buildCode}%' ORDER BY Urut DESC`,{
                 type: Sequelize.QueryTypes.SELECT,
                 plain: true
             });
 
+            console.log('DEBUGGING URUT '+JSON.stringify(latest))
+            
             if(latest){
+                console.log('DEBUGGING URUT '+JSON.stringify(latest))
                 urut = latest.Urut + 1
             }
 

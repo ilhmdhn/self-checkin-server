@@ -64,7 +64,7 @@ const IHP_Sul = sql.define('IHP_Sul', {
     allowNull: true
   },
   Date_Trans: {
-    type: DataTypes.DATE,
+    type: DataTypes.STRING(19),
     allowNull: true
   },
   Bayar: {

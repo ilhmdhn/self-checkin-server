@@ -8,7 +8,8 @@ const {directPayment} = require('../controller/PaymentController');
 
 const testController = async (req, res) =>{
     try {
-        // res.send(ResponseFormat(true,))
+        printBill('')
+        res.send(ResponseFormat(true,))
     } catch (err) {
         res.send(ResponseFormat(false, null, err.toString()))
     }

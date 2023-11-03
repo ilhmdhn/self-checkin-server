@@ -13,6 +13,7 @@ const selfCheckinOrderTable = require('../model/IHP_Self_Checkin_Order');
 
 const printBill = async (rcpCode) => {
     try {
+        // rcpCode = 'SOL-23110200002'
         const device = new escpos.USB();
         const options = { encoding: "GB18030", width: 48 }
         const printer = new escpos.Printer(device, options);
@@ -42,12 +43,21 @@ const printBill = async (rcpCode) => {
 
         const solData = await solTable.findAll({
             where:{
-                Reception:rcpCode
+                Reception :rcpCode
+            },
+            raw: true
+        });
+
+        const selfCheckinDataTemp = await selfCheckinOrderTable.findAll({
+            where:{
+                reception: rcpCode
             },
             raw: true
         })
 
-        if(solData){
+        const selfCheckinData = selfCheckinDataTemp[0];
+
+        if(solData.length>0){
             const sodData = await sodTable.findAll({
                 where:{
                     SlipOrder: solData[0].SlipOrder
@@ -103,7 +113,7 @@ const printBill = async (rcpCode) => {
                     { text: `${toRupiah(ivcData.Sewa_Kamar, { symbol: null, floatingPoint: 0 })}`, align: "RIGHT" },
                 ]);
                 printer.newLine()
-                if(listFnB){
+                if(listFnB.length>0){
                     printer.text('Rincian Penjualan')
                     printer.newLine()
                         listFnB.forEach(element =>{
@@ -120,7 +130,7 @@ const printBill = async (rcpCode) => {
                     { text: `Jumlah Ruangan`, align: "LEFT" },
                     { text: `${toRupiah(ivcData.Total_Kamar, { symbol: null, floatingPoint: 0 })}`, align: "RIGHT" },
                 ]);
-                if(listFnB){
+                if(listFnB.length>0){
                    printer.tableCustom([
                         { text: `Jumlah Penjualan`, align: "LEFT" },
                         { text: `${toRupiah(ivcData.Total_Penjualan, { symbol: null, floatingPoint: 0 })}`, align: "RIGHT" },
@@ -149,23 +159,35 @@ const printBill = async (rcpCode) => {
                 ]);
                 printer.tableCustom([
                     { text: ``, align: "LEFT" },
-                    { text: `Total`, align: "RIGHT" },
+                    { text: ``, align: "RIGHT" },
                     { text: `${toRupiah(ivcData.Total_All, { symbol: null, floatingPoint: 0 })}`, align: "RIGHT" },
                 ]);
-                printer
-                    .newLine()
-                    .size(1,0.1)
-                    .align('ct')
-                    .style('b')
-                    .text(`${toRupiah(ivcData.Total_All, {floatingPoint: 0 })}`)
-                    .newLine()
+                printer.newLine()
+                printer.tableCustom([
+                    { text: ``, align: "LEFT" },
+                    { text: `Penanganan ${selfCheckinData.payment_channel}`, align: "RIGHT" },
+                    { text: `${toRupiah(selfCheckinData.payment_fee, { symbol: null, floatingPoint: 0 })}`, align: "RIGHT" },
+                ]);
+                printer.tableCustom([
+                    { text: ``, align: "LEFT" },
+                    { text: ``, align: "RIGHT" },
+                    { text: `-----------`, align: "RIGHT" },
+                ]);
+                printer.tableCustom([
+                    { text: ``, align: "LEFT" },
+                    { text: `TOTAL`, align: "RIGHT" },
+                    { text: `${toRupiah(selfCheckinData.payment_fee + ivcData.Total_All, { symbol: null, floatingPoint: 0 })}`, align: "RIGHT" },
+                ]);
+                    // .size(1,0.1)
+                    // .align('ct')
+                    // .style('b')
+                    // .text(`${toRupiah(ivcData.Total_All, {floatingPoint: 0 })}`)
+                printer.newLine()
                     .newLine()
                     .newLine()
                     .close()
         });
-        console.log(`Bar ngeprint`)
     } catch (err) {
-        console.log(`ERROR PRINT ${err}`)
         return err;
     }
 }

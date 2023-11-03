@@ -134,7 +134,7 @@ const listRoom = () => {
                         listRoomResult.push(
                             {
                                 room_code: room.Kamar,
-                                room_image: 'https://adm.happypuppy.id/uploads/'+image.image,
+                                room_image: 'https://adm.happypuppy.id/'+image.image,
                                 room_category: room.Jenis_Kamar,
                                 room_ready: false,
                                 room_message: "Room belum dibersihkan"

@@ -177,7 +177,6 @@ const checkinPayLater = async (req, res) => {
 
         if(roomPriceDetail.length > 0){
             for(let i = 0; i<roomPriceDetail.length; i++){
-                console.log('DELOK ',roomPriceDetail[i])
                 await roomPriceTable.create({
                     reception: rcpCode,
                     room: roomCode,
@@ -213,8 +212,9 @@ const checkinPayLater = async (req, res) => {
                 Date_Trans: dateTrans,
                 Mobile_POS: '',
             });
-            const latestUrut = await getUrutSod()
+
             for (let i = 0; i < fnbDetail.length; i++) {
+                let latestUrut = await getUrutSod()
                 setLoc.add(fnbDetail[i].location)
                 await sodTable.create({
                     SlipOrder: solCode,
@@ -230,7 +230,7 @@ const checkinPayLater = async (req, res) => {
                     Note: fnbDetail[i].note,
                     CHUsr: 'SELF CHECKIN',
                     Tgl_Terima: dateTimeFormated,
-                    Urut: latestUrut + 1
+                    Urut: latestUrut
                 });
             }
         }
@@ -240,9 +240,7 @@ const checkinPayLater = async (req, res) => {
             },
             raw: true
         });
-        console.log('IPVOD RESULT ', ipVod)
         if (ipVod && (ipVod.length>0)) {
-            console.log('KELOLOSAN KAH?')
             const ipVod2 = ipVod[0].IP_Address;
             const portVod2 = ipVod[0].Server_Udp_Port;
 
@@ -291,7 +289,7 @@ const checkinPayLater = async (req, res) => {
     }
 }
 
-const insertCheckin = (dataCheckin, paymentMethod, paymentChannel, transactionId, amount, fee) =>{
+const insertCheckin = (checkinData, paymentMethod, paymentChannel, transactionId, amount, fee) =>{
     return new Promise(async(resolve, reject)=>{
         try {
             const setLoc = new Set();
@@ -303,8 +301,7 @@ const insertCheckin = (dataCheckin, paymentMethod, paymentChannel, transactionId
             const shift = await getShift()
             const dateTrans = await getDateTrans();
             const dateNumber = await numberDate();
-
-            console.log('KODE SUMMARY '+sulCode)
+            const dataCheckin = JSON.parse(checkinData);
 
             const pax = dataCheckin.pax;
             const roomCategory = dataCheckin.room_category;
@@ -322,7 +319,6 @@ const insertCheckin = (dataCheckin, paymentMethod, paymentChannel, transactionId
             const fnbDetail = dataCheckin.fnb_detail;
             const memberName = dataCheckin.member_name;
             let memberCode = dataCheckin.member_code;
-
             if (memberName == memberCode) {
                 if (memberName > 8) {
                     const truncatedName = memberName.substring(0, maxLength);
@@ -340,7 +336,6 @@ const insertCheckin = (dataCheckin, paymentMethod, paymentChannel, transactionId
 
             const dateTimeFormated = moment(dateTime, 'YYYY-MM-DD HH:mm:ss').format('YYYY-MM-DD HH:mm:ss');
             const checkoutDatetime = moment(dateTimeFormated).add(checkinDuration, 'hour').format('YYYY-MM-DD HH:mm:ss');
-            console.log('1')
             await rcpTable.create({
                 Reception: rcpCode,
                 DATE: moment(dateTimeFormated).format('DD/MM/YYYY HH:mm:ss'),
@@ -384,7 +379,6 @@ const insertCheckin = (dataCheckin, paymentMethod, paymentChannel, transactionId
                 Complete: '0'
             });
 
-            console.log('1')
             await ivcTable.create({
                 Invoice: ivcCode,
                 DATE: moment(dateTimeFormated).format('DD/MM/YYYY HH:mm:ss'),
@@ -422,13 +416,11 @@ const insertCheckin = (dataCheckin, paymentMethod, paymentChannel, transactionId
                 Jenis_Kamar: roomCategory
             });
     
-            console.log('1')
             await roomCheckinTable.create({
                 Kamar: roomCode,
                 Reception: rcpCode
             });
 
-            console.log('1')
             await roomTable.update({
                 Reception: rcpCode,
                 Nama_Tamu: memberName,
@@ -445,10 +437,8 @@ const insertCheckin = (dataCheckin, paymentMethod, paymentChannel, transactionId
                 }
             });
 
-            console.log('1')
             if(roomPriceDetail.length > 0){
                 for(let i = 0; i<roomPriceDetail.length; i++){
-                    console.log('DELOK ',roomPriceDetail[i])
                     await roomPriceTable.create({
                         reception: rcpCode,
                         room: roomCode,
@@ -470,7 +460,6 @@ const insertCheckin = (dataCheckin, paymentMethod, paymentChannel, transactionId
                 }
             }
 
-            console.log('1')
             if (fnbDetail.length>0) {
                 await solTable.create({
                     SlipOrder: solCode,
@@ -486,9 +475,9 @@ const insertCheckin = (dataCheckin, paymentMethod, paymentChannel, transactionId
                     Mobile_POS: '',
                 });
 
-                const latestUrut = await getUrutSod()
-
+                
                 for (let i = 0; i < fnbDetail.length; i++) {
+                    const latestUrut = await getUrutSod()
                     setLoc.add(fnbDetail[i].location)
                     await sodTable.create({
                         SlipOrder: solCode,
@@ -504,11 +493,11 @@ const insertCheckin = (dataCheckin, paymentMethod, paymentChannel, transactionId
                         Note: fnbDetail[i].note,
                         CHUsr: 'SELF CHECKIN',
                         Tgl_Terima: dateTimeFormated,
-                        Urut: latestUrut + 1
+                        Urut: latestUrut
                     });
                 }
             }
-            console.log('aaa');
+
             await sulTable.create({
                 Summary: sulCode,
                 DATE: moment(dateTimeFormated).format('DD/MM/YYYY HH:mm:ss'),
@@ -556,8 +545,8 @@ const insertCheckin = (dataCheckin, paymentMethod, paymentChannel, transactionId
                 },
                 raw: true
             });
+
             if (ipVod && (ipVod.length>0)) {
-                console.log('KELOLOSAN KAH?')
                 const ipVod2 = ipVod[0].IP_Address;
                 const portVod2 = ipVod[0].Server_Udp_Port;
     
@@ -606,13 +595,12 @@ const insertCheckin = (dataCheckin, paymentMethod, paymentChannel, transactionId
                 id_transaction: transactionId,
                 checkin_amount: amount,
                 payment_fee: fee,
-                checkin_data: dataCheckin,
+                checkin_data: JSON.stringify(dataCheckin),
             })
-            console.log('teru')
             resolve(true)
             printBill(rcpCode)
         } catch (err) {
-            console.log('fales '+err.toString())
+            console.log('ERROR '+err.toString())
             reject(err)
         }
     });

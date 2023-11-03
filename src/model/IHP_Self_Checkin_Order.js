@@ -24,10 +24,6 @@ const IHP_Self_Checkin_Order = sqlz.define('IHP_Self_Checkin_Order', {
     type: DataTypes.STRING(35),
     allowNull: false,
   },
-  expired_payment: {
-    type: DataTypes.STRING(19),
-    allowNull: false,
-  },
   checkin_amount: {
     type: DataTypes.FLOAT,
     allowNull: false,
