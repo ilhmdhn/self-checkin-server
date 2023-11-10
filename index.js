@@ -51,8 +51,8 @@ app.use(checkinRoute);
 app.use(paymentRoute);
 
 app.get('/test', (req, res)=>[
-    // listPaymentMethod(req, res)
-    testController(req, res)
+    listPaymentMethod(req, res)
+    // testController(req, res)
 ])
 app.get('/test2', (req, res)=>[
     generateQrisPayment(req, res)

@@ -600,7 +600,6 @@ const insertCheckin = (checkinData, paymentMethod, paymentChannel, transactionId
             resolve(true)
             printBill(rcpCode)
         } catch (err) {
-            console.log('ERROR '+err.toString())
             reject(err)
         }
     });

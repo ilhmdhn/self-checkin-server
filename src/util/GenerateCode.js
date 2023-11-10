@@ -129,11 +129,8 @@ const getUrutSod = () =>{
                 type: Sequelize.QueryTypes.SELECT,
                 plain: true
             });
-
-            console.log('DEBUGGING URUT '+JSON.stringify(latest))
             
             if(latest){
-                console.log('DEBUGGING URUT '+JSON.stringify(latest))
                 urut = latest.Urut + 1
             }
 
