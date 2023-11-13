@@ -11,6 +11,7 @@ const fnbRoute = require('./src/route/FnbRoute');
 const pricingRoute = require('./src/route/PricingRoute');
 const checkinRoute = require('./src/route/CheckinRoute');
 const paymentRoute = require('./src/route/PaymentRoute');
+const promoRoute = require('./src/route/PromoRoute');
 const testController = require("./src/controller/TestController");
 const { getDetailRoom } = require("./src/controller/RoomController");
 const { getFnbPaging } = require("./src/controller/FnbController");
@@ -49,6 +50,7 @@ app.use(fnbRoute);
 app.use(pricingRoute);
 app.use(checkinRoute);
 app.use(paymentRoute);
+app.use(promoRoute);
 
 app.get('/test', (req, res)=>[
     listPaymentMethod(req, res)
