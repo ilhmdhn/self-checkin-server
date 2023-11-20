@@ -318,7 +318,13 @@ const insertCheckin = (checkinData, paymentMethod, paymentChannel, transactionId
             const fnbTotal = dataCheckin.fnb_total;
             const fnbDetail = dataCheckin.fnb_detail;
             const memberName = dataCheckin.member_name;
+            const voucher = dataCheckin.voucher;
+            const promoRoom = dataCheckin.promo_room;
+            const promoFood = dataCheckin.promo_food;
             let memberCode = dataCheckin.member_code;
+
+            console.log(dataCheckin)
+            return;
             if (memberName == memberCode) {
                 if (memberName > 8) {
                     const truncatedName = memberName.substring(0, maxLength);

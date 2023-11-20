@@ -70,8 +70,15 @@ module.exports = (roomCategory, duration) => {
                         price: tarifKamar.Tarif,
                         price_per_minute: FeePerMinute,
                         used_minute: usageMinute,
+                        reduce_duration: 0,
+                        overpax: 0,
+                        overpax_price: 0,
+                        vcr_minute: 0,
+                        promo_percent: 0,
                         room_total: feeRoom,
-                        price_total: feeRoom
+                        promo_total: 0,
+                        price_total: feeRoom,
+                        is_extend: 0
                     }
                 )
             } while (minute > 0);
