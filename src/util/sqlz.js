@@ -16,7 +16,7 @@ module.exports = new Sequelize(preferences().databaseName, preferences().databas
     define: {
         timestamps: false // Opsional: Ini akan menonaktifkan pengaturan timestamp default Sequelize
     },
-    options: {
-        enableArithAbort: false // Atau false, sesuai kebutuhan Anda
-    }
+    // options: {
+    //     enableArithAbort: true // Atau false, sesuai kebutuhan Anda
+    // }
 });
