@@ -3,12 +3,17 @@ const roomCheckinTable = require('../model/IHP_RoomCheckin');
 const roomTable = require('../model/IHP_Room');
 const rcpDetailRoomTable = require('../model/IHP_Rcp_DetailsRoom');
 const ivcTable = require('../model/IHP_Ivc');
+const promoRcpTable = require('../model/IHP_Promo_Rcp');
 const solTable = require('../model/IHP_Sol');
 const sodTable = require('../model/IHP_Sod');
 const roomPriceTable = require('../model/IHP_Room_Price');
 const sulTable = require('../model/IHP_Sul');
 const sudTable = require('../model/IHP_Sud');
 const selfCheckinOrderTable = require('../model/IHP_Self_Checkin_Order');
+const vcrTable = require('../model/IHP_Vcr');
+const uangVoucherTable = require('../model/IHP_UangVoucher');
+const sulHistoryTable = require('../model/IHP_Sul_History');
+const sudHistoryTable = require('../model/IHP_Sud_History');
 const ResponseFormat = require('../util/ResponseFormat');
 const moment = require('moment');
 const ipTable = require('../model/IHP_IPAddress');
@@ -303,28 +308,37 @@ const insertCheckin = (checkinData, paymentMethod, paymentChannel, transactionId
             const dateNumber = await numberDate();
             const dataCheckin = JSON.parse(checkinData);
 
-            const pax = dataCheckin.pax;
-            const roomCategory = dataCheckin.room_category;
-            const roomCode = dataCheckin.room_code;
-            const checkinDuration = dataCheckin.checkin_duration;
-            const roomPrice = dataCheckin.room_price;
-            const roomService = dataCheckin.room_service;
-            const roomTax = dataCheckin.room_tax;
-            const roomTotal = dataCheckin.room_total;
-            const roomPriceDetail = dataCheckin.room_detail;
-            const fnbPrice = dataCheckin.fnb_price;
-            const fnbService = dataCheckin.fnb_service;
-            const fnbTax = dataCheckin.fnb_tax;
-            const fnbTotal = dataCheckin.fnb_total;
-            const fnbDetail = dataCheckin.fnb_detail;
-            const memberName = dataCheckin.member_name;
-            const voucher = dataCheckin.voucher;
-            const promoRoom = dataCheckin.promo_room;
-            const promoFood = dataCheckin.promo_food;
-            let memberCode = dataCheckin.member_code;
+            console.log('DATA CHECKIn', JSON.stringify(dataCheckin));
 
-            console.log(dataCheckin)
-            return;
+            const memberCode = data.checkin.member_code;
+            const memberName = data.checkin.member_name;
+            const pax = data.checkin.pax;
+            const roomCategory = data.checkin.room_category;
+            const roomCode = data.checkin.room_code;
+            const checkinDuration = data.checkin.checkin_duration;
+            
+            const roomPrice = data.checkin.room_price;
+            const roomPromo = data.checkin.room_promo;
+            const roomVoucher = data.checkin.room_voucher;
+            const roomService = data.checkin.room_service;
+            const roomTax = data.checkin.room_tax;
+            const roomTotal = data.checkin.room_total;
+            const fnbPrice = data.checkin.fnb_price;
+            const fnbPromo = data.checkin.fnb_promo;
+            const fnbVoucher = data.checkin.fnb_voucher;
+            const fnbService = data.checkin.fnb_service;
+            const fnbTax = data.checkin.fnb_tax;
+            const fnbTotal = data.checkin.fnb_total;
+
+            const roomPriceDetail = data.checkin.room_detail;
+            const promoRoomDetail = data.checkin.promo_room_detail;
+            const promoFoodDetail = data.checkin.promo_food_detail;
+            const voucherDetail = data.checkin.voucher_detail;
+            const fnbDetail = data.checkin.fnb_detail;
+            const paymentDetail = data.checkin.payment;
+
+            // return;
+
             if (memberName == memberCode) {
                 if (memberName > 8) {
                     const truncatedName = memberName.substring(0, maxLength);
@@ -342,6 +356,7 @@ const insertCheckin = (checkinData, paymentMethod, paymentChannel, transactionId
 
             const dateTimeFormated = moment(dateTime, 'YYYY-MM-DD HH:mm:ss').format('YYYY-MM-DD HH:mm:ss');
             const checkoutDatetime = moment(dateTimeFormated).add(checkinDuration, 'hour').format('YYYY-MM-DD HH:mm:ss');
+            
             await rcpTable.create({
                 Reception: rcpCode,
                 DATE: moment(dateTimeFormated).format('DD/MM/YYYY HH:mm:ss'),
@@ -396,20 +411,20 @@ const insertCheckin = (checkinData, paymentMethod, paymentChannel, transactionId
                 Sewa_Kamar: Math.round(roomPrice),
                 Total_Extend: 0,
                 Overpax: 0,
-                Discount_Kamar: 0,
+                Discount_Kamar: Math.round(roomPromo),
                 Surcharge_Kamar: 0,
                 Service_Kamar: Math.round(roomService),
                 Tax_Kamar: Math.round(roomTax),
                 Total_Kamar: Math.round(roomTotal),
                 Charge_Penjualan: Math.round(fnbPrice),
                 Total_Cancelation: 0,
-                Discount_Penjualan: 0,
+                Discount_Penjualan: Math.round(fnbPromo),
                 Service_Penjualan: Math.round(fnbService),
                 Tax_Penjualan: Math.round(fnbTax),
                 Total_Penjualan: Math.round(fnbTotal),
                 Charge_Lain: 0,
                 Uang_Muka: 0,
-                Uang_Voucher: 0,
+                Uang_Voucher: Math.round(roomVoucher + fnbVoucher),
                 Total_All: Math.round(roomTotal + fnbTotal),
                 Transfer: '',
                 Status: '1',
@@ -464,6 +479,72 @@ const insertCheckin = (checkinData, paymentMethod, paymentChannel, transactionId
                         is_extend:''
                     });
                 }
+            }
+
+            if(promoRoomDetail){
+                await promoRcpTable.create({
+                    Reception: rcpCode,
+                    Promo: promoFoodDetail.promoRoom,
+                    Kamar: promoFoodDetail.room,
+                    Hari: promoFoodDetail.hari,
+                    Status_Promo: 1,
+                    Date_Start: promoFoodDetail.dateStart,
+                    Time_Start: promoFoodDetail.timeStart,
+                    Date_Finish: promoFoodDetail.dateFinish,
+                    Time_Finish: promoFoodDetail.timeFinish,
+                    Diskon_Persen: promoFoodDetail.diskonPersen,
+                    Diskon_Rp: promoFoodDetail.diskonRp,
+                });
+            }
+
+            if(promoFoodDetail){
+                await promoRcpTable.create({
+                    Reception: rcpCode,
+                    Promo: promoFoodDetail.promoFood,
+                    Status_Promo: 2,
+                    Syarat_Kamar: promoFoodDetail.syaratKamar,
+                    Kamar: promoFoodDetail.kamar,
+                    Syarat_Jenis_Kamar: promoFoodDetail.syaratJeniskamar,
+                    Jenis_Kamar: promoFoodDetail.jenisKamar,
+                    Syarat_Durasi: promoFoodDetail.syaratDurasi,
+                    Durasi: promoFoodDetail.durasi,
+                    Syarat_Hari: promoFoodDetail.syaratHari,
+                    Hari: promoFoodDetail.hari,
+                    Syarat_Jam: promoFoodDetail.syaratJam,
+                    Date_Start: promoFoodDetail.dateStart,
+                    Time_Start: promoFoodDetail.timeStart,
+                    Date_Finish: promoFoodDetail.dateFinish,
+                    Time_Finish: promoFoodDetail.timeFinish,
+                    Syarat_Quantity: promoFoodDetail.syaratQuantity,
+                    Quantity: promoFoodDetail.quantity,
+                    Diskon_Persen: promoFoodDetail.diskonPersen,
+                    Diskon_Rp: promoFoodDetail.diskonRp,
+                    Syarat_Inventory: promoFoodDetail.syaratInventory,
+                    Inventory: promoFoodDetail.inventory,
+                });
+            }
+
+            if(voucherDetail){
+                await vcrTable.create({
+                    Voucher: voucherDetail.voucherCode,
+                    DATE: moment(dateTimeFormated).format('DD/MM/YYYY HH:mm:ss'),
+                    Expired: moment(dateTimeFormated).add(30, 'day').format('YYYY-MM-DD HH:mm:ss'),
+                    Jenis_kamar: roomCategory,
+                    Kamar: roomCode,
+                    Jam_Free: 0,
+                    Menit_Free: 0,
+                    Nilai: Math.round(roomVoucher + fnbVoucher),
+                    Status: 0,
+                    CHtime: '',
+                    CHUsr: 'SELF CHECKIN',
+                    Reception: rcpCode
+                });
+
+                await uangVoucherTable.create({
+                    Reception: rcpCode,
+                    Voucher: voucherDetail.voucherCode,
+                    Pay_Value: Math.round(roomVoucher + fnbVoucher)
+                });
             }
 
             if (fnbDetail.length>0) {
@@ -593,7 +674,8 @@ const insertCheckin = (checkinData, paymentMethod, paymentChannel, transactionId
                         })
                     }
                 }
-            }            
+            }     
+
             await selfCheckinOrderTable.create({
                 reception: rcpCode,
                 payment_method: paymentMethod,
@@ -603,6 +685,7 @@ const insertCheckin = (checkinData, paymentMethod, paymentChannel, transactionId
                 payment_fee: fee,
                 checkin_data: JSON.stringify(dataCheckin),
             })
+
             resolve(true)
             printBill(rcpCode)
         } catch (err) {
