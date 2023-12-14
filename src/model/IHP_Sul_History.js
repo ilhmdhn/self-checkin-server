@@ -63,7 +63,7 @@ const IHP_Sul_History = sequelize.define('IHP_Sul_History', {
     allowNull: true,
   },
   Date_Trans: {
-    type: DataTypes.DATE,
+    type: DataTypes.STRING(19),
     allowNull: true,
   },
   Bayar: {
@@ -83,7 +83,7 @@ const IHP_Sul_History = sequelize.define('IHP_Sul_History', {
     allowNull: true,
   },
   Change_Time: {
-    type: DataTypes.DATE,
+    type: DataTypes.STRING(19),
     allowNull: true,
   },
 }, {

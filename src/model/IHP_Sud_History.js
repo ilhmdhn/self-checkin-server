@@ -55,7 +55,7 @@ const IHP_Sud_History = sequelize.define('IHP_Sud_History', {
     allowNull: true,
   },
   Change_Time: {
-    type: DataTypes.DATE,
+    type: DataTypes.STRING(19),
     allowNull: true,
   },
 }, {

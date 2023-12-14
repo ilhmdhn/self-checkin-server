@@ -11,11 +11,11 @@ const IHP_Promo_Rcp = sequelize.define('IHP_Promo_Rcp', {
     allowNull: true,
   },
   Start_Promo: {
-    type: DataTypes.DATE,
+    type: DataTypes.STRING(19),
     allowNull: true,
   },
   End_Promo: {
-    type: DataTypes.DATE,
+    type: DataTypes.STRING(19),
     allowNull: true,
   },
   Status_Promo: {

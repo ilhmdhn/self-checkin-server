@@ -11,13 +11,14 @@ const sodTable = require('../model/IHP_Sod');
 const selfCheckinOrderTable = require('../model/IHP_Self_Checkin_Order');
 
 
-const printBill = async (rcpCode) => {
+const printBill = async (rcpCode, dataCheckin) => {
     try {
         // rcpCode = 'SOL-23110200002'
         const device = new escpos.USB();
         const options = { encoding: "GB18030", width: 48 }
         const printer = new escpos.Printer(device, options);
         const listFnB = [];
+        
 
         const configSatuData = await configSatuTable.findAll({
             where: {

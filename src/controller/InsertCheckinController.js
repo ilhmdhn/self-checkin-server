@@ -12,8 +12,10 @@ const sudTable = require('../model/IHP_Sud');
 const selfCheckinOrderTable = require('../model/IHP_Self_Checkin_Order');
 const vcrTable = require('../model/IHP_Vcr');
 const uangVoucherTable = require('../model/IHP_UangVoucher');
-const sulHistoryTable = require('../model/IHP_Sul_History');
-const sudHistoryTable = require('../model/IHP_Sud_History');
+const paymentGatewayTable = require('../model/IHP_Payment_Gateway');
+const sodPromoTable = require('../model/IHP_Sod_Promo');
+// const sulHistoryTable = require('../model/IHP_Sul_History');
+// const sudHistoryTable = require('../model/IHP_Sud_History');
 const ResponseFormat = require('../util/ResponseFormat');
 const moment = require('moment');
 const ipTable = require('../model/IHP_IPAddress');
@@ -39,6 +41,7 @@ const {
 const { printBill } = require('../util/Print');
 
 const checkinPayLater = async (req, res) => {
+/*
     try {
         const setLoc = new Set();
         const pax = req.body.pax;
@@ -79,6 +82,7 @@ const checkinPayLater = async (req, res) => {
         const dateTimeFormated = moment(dateTime, 'YYYY-MM-DD HH:mm:ss').format('YYYY-MM-DD HH:mm:ss');
         const checkoutDatetime = moment(dateTimeFormated).add(checkinDuration, 'hour').format('YYYY-MM-DD HH:mm:ss');
 
+        console.log(`rcpTable.create `)
         await rcpTable.create({
             Reception: rcpCode,
             DATE: moment(dateTimeFormated).format('DD/MM/YYYY HH:mm:ss'),
@@ -122,6 +126,7 @@ const checkinPayLater = async (req, res) => {
             Complete: '0'
         });
 
+        console.log(`ivcTable.create `)
         await ivcTable.create({
             Invoice: ivcCode,
             DATE: moment(dateTimeFormated).format('DD/MM/YYYY HH:mm:ss'),
@@ -159,11 +164,13 @@ const checkinPayLater = async (req, res) => {
             Jenis_Kamar: roomCategory
         });
 
+        console.log(`roomCheckinTable.create `)
         await roomCheckinTable.create({
             Kamar: roomCode,
             Reception: rcpCode
         });
 
+        console.log(`roomTable.update `)
         await roomTable.update({
             Reception: rcpCode,
             Nama_Tamu: memberName,
@@ -182,6 +189,7 @@ const checkinPayLater = async (req, res) => {
 
         if(roomPriceDetail.length > 0){
             for(let i = 0; i<roomPriceDetail.length; i++){
+                console.log(`roomPriceTable.create `)
                 await roomPriceTable.create({
                     reception: rcpCode,
                     room: roomCode,
@@ -204,6 +212,7 @@ const checkinPayLater = async (req, res) => {
         }
 
         if (fnbDetail.length>0) {
+            console.log(`solTable.create `)
             await solTable.create({
                 SlipOrder: solCode,
                 DATE: moment(dateTimeFormated).format('DD/MM/YYYY HH:mm:ss'),
@@ -221,6 +230,7 @@ const checkinPayLater = async (req, res) => {
             for (let i = 0; i < fnbDetail.length; i++) {
                 let latestUrut = await getUrutSod()
                 setLoc.add(fnbDetail[i].location)
+                console.log(`sodTable.create `)
                 await sodTable.create({
                     SlipOrder: solCode,
                     Inventory: fnbDetail[i].id_local,
@@ -228,7 +238,7 @@ const checkinPayLater = async (req, res) => {
                     Price: fnbDetail[i].price,
                     Qty: fnbDetail[i].qty,
                     Qty_Terima: fnbDetail[i].qty,
-                    Total: fnbDetail[i].price * fnbDetail[i].qty,
+                    Total: fnbDetail[i].price_total,
                     Status: '3',
                     Location: fnbDetail[i].location,
                     Printed: '2',
@@ -237,8 +247,22 @@ const checkinPayLater = async (req, res) => {
                     Tgl_Terima: dateTimeFormated,
                     Urut: latestUrut
                 });
+                if(fnbDetail[i].price_promo>0){
+                    console.log(`sodPromoTable.create `)
+                    let promoName = '';
+                    if(!dataCheckin.promo_food_detail.promoFood){
+                        promoName = 
+                    }
+                    await sodPromoTable.create({
+                        SlipOrder: solCode,
+                        Inventory: fnbDetail[i].id_local,
+                        Promo_Food: dataCheckin.promo_food_detail.promoFood,
+                        Harga_Promo: fnbDetail[i].price_promo,
+                    });
+                }
             }
         }
+        console.log(`ipTable.findAll `)
         const ipVod = await ipTable.findAll({
             where: {
                 Aplikasi: 'TIMER VOD2B'
@@ -259,6 +283,7 @@ const checkinPayLater = async (req, res) => {
             if (loc == '2') {
 
                 const socketKitchen = dgram.createSocket('udp4');
+                console.log(`ipTable.findAll `)
                 const ipKitchen = await ipTable.findAll({
                     where: {
                         Aplikasi: 'KITCHEN'
@@ -274,6 +299,7 @@ const checkinPayLater = async (req, res) => {
 
             if (loc == '3') {
                 const socketBar = dgram.createSocket('udp4');
+                console.log(`ipTable.findAll `)
                 const ipBar = await ipTable.findAll({
                     where: {
                         Aplikasi: 'BAR'
@@ -292,6 +318,7 @@ const checkinPayLater = async (req, res) => {
     } catch (err) {
         res.send(ResponseFormat(false, null, err.message));
     }
+    */
 }
 
 const insertCheckin = (checkinData, paymentMethod, paymentChannel, transactionId, amount, fee) =>{
@@ -308,37 +335,33 @@ const insertCheckin = (checkinData, paymentMethod, paymentChannel, transactionId
             const dateNumber = await numberDate();
             const dataCheckin = JSON.parse(checkinData);
 
-            console.log('DATA CHECKIn', JSON.stringify(dataCheckin));
-
-            const memberCode = data.checkin.member_code;
-            const memberName = data.checkin.member_name;
-            const pax = data.checkin.pax;
-            const roomCategory = data.checkin.room_category;
-            const roomCode = data.checkin.room_code;
-            const checkinDuration = data.checkin.checkin_duration;
+            const memberCode = dataCheckin.member_code;
+            const memberName = dataCheckin.member_name;
+            const pax = dataCheckin.pax;
+            const roomCategory = dataCheckin.room_category;
+            const roomCode = dataCheckin.room_code;
+            const checkinDuration = dataCheckin.checkin_duration;
             
-            const roomPrice = data.checkin.room_price;
-            const roomPromo = data.checkin.room_promo;
-            const roomVoucher = data.checkin.room_voucher;
-            const roomService = data.checkin.room_service;
-            const roomTax = data.checkin.room_tax;
-            const roomTotal = data.checkin.room_total;
-            const fnbPrice = data.checkin.fnb_price;
-            const fnbPromo = data.checkin.fnb_promo;
-            const fnbVoucher = data.checkin.fnb_voucher;
-            const fnbService = data.checkin.fnb_service;
-            const fnbTax = data.checkin.fnb_tax;
-            const fnbTotal = data.checkin.fnb_total;
+            const roomPrice = dataCheckin.room_price;
+            const roomPromo = dataCheckin.room_promo;
+            const roomVoucher = dataCheckin.room_voucher;
+            const roomService = dataCheckin.room_service;
+            const roomTax = dataCheckin.room_tax;
+            const roomTotal = dataCheckin.room_total;
+            const fnbPrice = dataCheckin.fnb_price;
+            const fnbPromo = dataCheckin.fnb_promo;
+            const fnbVoucher = dataCheckin.fnb_voucher;
+            const fnbService = dataCheckin.fnb_service;
+            const fnbTax = dataCheckin.fnb_tax;
+            const fnbTotal = dataCheckin.fnb_total;
 
-            const roomPriceDetail = data.checkin.room_detail;
-            const promoRoomDetail = data.checkin.promo_room_detail;
-            const promoFoodDetail = data.checkin.promo_food_detail;
-            const voucherDetail = data.checkin.voucher_detail;
-            const fnbDetail = data.checkin.fnb_detail;
-            const paymentDetail = data.checkin.payment;
-
-            // return;
-
+            const roomPriceDetail = dataCheckin.room_detail;
+            const promoRoomDetail = dataCheckin.promo_room_detail;
+            const promoFoodDetail = dataCheckin.promo_food_detail;
+            const voucherDetail = dataCheckin.voucher_detail;
+            const fnbDetail = dataCheckin.fnb_detail;
+            const paymentDetail = dataCheckin.payment;
+            console.log('RENE GAK')
             if (memberName == memberCode) {
                 if (memberName > 8) {
                     const truncatedName = memberName.substring(0, maxLength);
@@ -357,6 +380,7 @@ const insertCheckin = (checkinData, paymentMethod, paymentChannel, transactionId
             const dateTimeFormated = moment(dateTime, 'YYYY-MM-DD HH:mm:ss').format('YYYY-MM-DD HH:mm:ss');
             const checkoutDatetime = moment(dateTimeFormated).add(checkinDuration, 'hour').format('YYYY-MM-DD HH:mm:ss');
             
+            console.log(`rcpTable.create`)
             await rcpTable.create({
                 Reception: rcpCode,
                 DATE: moment(dateTimeFormated).format('DD/MM/YYYY HH:mm:ss'),
@@ -400,6 +424,7 @@ const insertCheckin = (checkinData, paymentMethod, paymentChannel, transactionId
                 Complete: '0'
             });
 
+            console.log(`ivcTable.create`)
             await ivcTable.create({
                 Invoice: ivcCode,
                 DATE: moment(dateTimeFormated).format('DD/MM/YYYY HH:mm:ss'),
@@ -437,11 +462,13 @@ const insertCheckin = (checkinData, paymentMethod, paymentChannel, transactionId
                 Jenis_Kamar: roomCategory
             });
     
+            console.log(`roomCheckinTable.create`)
             await roomCheckinTable.create({
                 Kamar: roomCode,
                 Reception: rcpCode
             });
 
+            console.log(`roomTable.update`)
             await roomTable.update({
                 Reception: rcpCode,
                 Nama_Tamu: memberName,
@@ -460,6 +487,7 @@ const insertCheckin = (checkinData, paymentMethod, paymentChannel, transactionId
 
             if(roomPriceDetail.length > 0){
                 for(let i = 0; i<roomPriceDetail.length; i++){
+                    console.log(`roomPriceTable.create`)
                     await roomPriceTable.create({
                         reception: rcpCode,
                         room: roomCode,
@@ -482,6 +510,7 @@ const insertCheckin = (checkinData, paymentMethod, paymentChannel, transactionId
             }
 
             if(promoRoomDetail){
+                console.log(`promoRcpTable.create ROOM`)
                 await promoRcpTable.create({
                     Reception: rcpCode,
                     Promo: promoFoodDetail.promoRoom,
@@ -498,6 +527,7 @@ const insertCheckin = (checkinData, paymentMethod, paymentChannel, transactionId
             }
 
             if(promoFoodDetail){
+                console.log(`promoRcpTable.create FOOD`)
                 await promoRcpTable.create({
                     Reception: rcpCode,
                     Promo: promoFoodDetail.promoFood,
@@ -525,6 +555,7 @@ const insertCheckin = (checkinData, paymentMethod, paymentChannel, transactionId
             }
 
             if(voucherDetail){
+                console.log(`vcrTable.create`)
                 await vcrTable.create({
                     Voucher: voucherDetail.voucherCode,
                     DATE: moment(dateTimeFormated).format('DD/MM/YYYY HH:mm:ss'),
@@ -540,6 +571,7 @@ const insertCheckin = (checkinData, paymentMethod, paymentChannel, transactionId
                     Reception: rcpCode
                 });
 
+                console.log(`uangVoucherTable.create`)
                 await uangVoucherTable.create({
                     Reception: rcpCode,
                     Voucher: voucherDetail.voucherCode,
@@ -548,6 +580,7 @@ const insertCheckin = (checkinData, paymentMethod, paymentChannel, transactionId
             }
 
             if (fnbDetail.length>0) {
+                console.log(`solTable.create`)
                 await solTable.create({
                     SlipOrder: solCode,
                     DATE: moment(dateTimeFormated).format('DD/MM/YYYY HH:mm:ss'),
@@ -566,6 +599,7 @@ const insertCheckin = (checkinData, paymentMethod, paymentChannel, transactionId
                 for (let i = 0; i < fnbDetail.length; i++) {
                     const latestUrut = await getUrutSod()
                     setLoc.add(fnbDetail[i].location)
+                    console.log(`sodTable.create`)
                     await sodTable.create({
                         SlipOrder: solCode,
                         Inventory: fnbDetail[i].id_local,
@@ -573,7 +607,7 @@ const insertCheckin = (checkinData, paymentMethod, paymentChannel, transactionId
                         Price: fnbDetail[i].price,
                         Qty: fnbDetail[i].qty,
                         Qty_Terima: fnbDetail[i].qty,
-                        Total: fnbDetail[i].price * fnbDetail[i].qty,
+                        Total: fnbDetail[i].price_total,
                         Status: '3',
                         Location: fnbDetail[i].location,
                         Printed: '2',
@@ -582,9 +616,28 @@ const insertCheckin = (checkinData, paymentMethod, paymentChannel, transactionId
                         Tgl_Terima: dateTimeFormated,
                         Urut: latestUrut
                     });
+                    
+                    if(fnbDetail[i].price_promo>0){
+                        console.log(`sodPromoTable.create `)
+
+                        let promoName = '';
+                        if(promoFoodDetail){
+                            promoName = promoFoodDetail.promoFood
+                        }else if(voucherDetail){
+                            promoName = voucherDetail.voucherCode
+                        }
+
+                        await sodPromoTable.create({
+                            SlipOrder: solCode,
+                            Inventory: fnbDetail[i].id_local,
+                            Promo_Food: dataCheckin.promo_food_detail.promoFood,
+                            Harga_Promo: fnbDetail[i].price_promo,
+                        });
+                    }
                 }
             }
 
+            console.log(`sulTable.create`)
             await sulTable.create({
                 Summary: sulCode,
                 DATE: moment(dateTimeFormated).format('DD/MM/YYYY HH:mm:ss'),
@@ -609,6 +662,7 @@ const insertCheckin = (checkinData, paymentMethod, paymentChannel, transactionId
                 Flag_Pos_Invoice_Web: ''
             });
 
+            console.log(`sudTable.create`)
             await sudTable.create({
                 Summary: sulCode,
                 ID_Payment: 99,
@@ -625,6 +679,13 @@ const insertCheckin = (checkinData, paymentMethod, paymentChannel, transactionId
                 Flag: '',
             });
 
+            console.log(`paymentGatewayTable.create`)
+            await paymentGatewayTable.create({
+                reception: rcpCode,
+                method: paymentDetail.payment_method,
+                channel: paymentDetail.payment_channel,
+                fee: paymentDetail.fee
+            })
 
             const ipVod = await ipTable.findAll({
                 where: {
@@ -685,10 +746,14 @@ const insertCheckin = (checkinData, paymentMethod, paymentChannel, transactionId
                 payment_fee: fee,
                 checkin_data: JSON.stringify(dataCheckin),
             })
-
+            console.log('KO KENE')
             resolve(true)
-            printBill(rcpCode)
+            printBill(rcpCode, dataCheckin)
         } catch (err) {
+            console.log(`
+            err: ${err}
+            err.message: ${err.message}
+            `)
             reject(err)
         }
     });

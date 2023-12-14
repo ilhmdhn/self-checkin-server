@@ -12,7 +12,7 @@ const IHP_Vcr = sequelize.define('IHP_Vcr', {
     allowNull: true,
   },
   Expired: {
-    type: DataTypes.DATE,
+    type: DataTypes.STRING(19),
     allowNull: true,
   },
   Jenis_kamar: {
@@ -60,7 +60,7 @@ const IHP_Vcr = sequelize.define('IHP_Vcr', {
     allowNull: true,
   },
   CHtime: {
-    type: DataTypes.DATE,
+    type: DataTypes.STRING(19),
     allowNull: true,
   },
   CHUsr: {
