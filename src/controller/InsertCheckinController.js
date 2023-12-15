@@ -746,14 +746,12 @@ const insertCheckin = (checkinData, paymentMethod, paymentChannel, transactionId
                 payment_fee: fee,
                 checkin_data: JSON.stringify(dataCheckin),
             })
-            console.log('KO KENE')
             resolve(true)
             printBill(rcpCode, dataCheckin)
         } catch (err) {
-            console.log(`
-            err: ${err}
-            err.message: ${err.message}
-            `)
+            console.error('Name:', err.name);       // Nama kesalahan (biasanya 'Error')
+            console.error('Message:', err.message); // Pesan kesalahan yang disediakan
+            console.error('Stack:', err.stack); 
             reject(err)
         }
     });

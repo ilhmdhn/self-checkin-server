@@ -18,7 +18,26 @@ const printBill = async (rcpCode, dataCheckin) => {
         const options = { encoding: "GB18030", width: 48 }
         const printer = new escpos.Printer(device, options);
         const listFnB = [];
-        
+        let promoRoom = 0;
+        let voucherRoom = 0;
+        let promoFnb = 0;
+        let voucherFnb = 0;
+
+        if(dataCheckin.room_promo && dataCheckin.room_promo>0){
+            promoRoom = dataCheckin.room_promo
+        }
+
+        if(dataCheckin.room_voucher && dataCheckin.room_voucher>0){
+            voucherRoom = dataCheckin.room_voucher
+        }
+
+        if(dataCheckin.fnb_promo && dataCheckin.fnb_promo>0){
+            promoFnb = dataCheckin.fnb_promo
+        }
+
+        if(dataCheckin.fnb_voucher && dataCheckin.fnb_voucher>0){
+            voucherFnb = dataCheckin.fnb_voucher
+        }
 
         const configSatuData = await configSatuTable.findAll({
             where: {
@@ -113,6 +132,18 @@ const printBill = async (rcpCode, dataCheckin) => {
                     { text: `${checkinTime.slice(11, 16)} - ${checkoutTime.slice(11, 16)}`, align: "LEFT" },
                     { text: `${toRupiah(ivcData.Sewa_Kamar, { symbol: null, floatingPoint: 0 })}`, align: "RIGHT" },
                 ]);
+                if(promoRoom>0){
+                    printer.tableCustom([
+                        { text: `Promo Room`, align: "LEFT" },
+                        { text: `${toRupiah(Math.round(promoRoom), { symbol: null, floatingPoint: 0 })}`, align: "RIGHT" },
+                    ]); 
+                }
+                if(voucherRoom>0){
+                    printer.tableCustom([
+                        { text: `Voucher Room `, align: "LEFT" },
+                        { text: `${toRupiah(Math.round(voucherRoom), { symbol: null, floatingPoint: 0 })}`, align: "RIGHT" },
+                    ]); 
+                }
                 printer.newLine()
                 if(listFnB.length>0){
                     printer.text('Rincian Penjualan')
@@ -121,27 +152,39 @@ const printBill = async (rcpCode, dataCheckin) => {
                             printer.text(element.itemName)
                             printer.tableCustom([
                                 { text: `  ${element.qty} x ${toRupiah(element.price, { symbol: null, floatingPoint: 0 })}`, align: "LEFT" },
-                                { text: toRupiah(element.total, { symbol: null, floatingPoint: 0 }), align: "RIGHT" },
+                                { text: toRupiah(Math.round(element.qty * element.price), { symbol: null, floatingPoint: 0 }), align: "RIGHT" },
                             ]);
                         });
+                }
+                if(promoFnb>0){
+                    printer.tableCustom([
+                        { text: `Promo FnB `, align: "LEFT" },
+                        { text: `${toRupiah(Math.round(promoFnb), { symbol: null, floatingPoint: 0 })}`, align: "RIGHT" },
+                    ]); 
+                }
+                if(voucherFnb>0){
+                    printer.tableCustom([
+                        { text: `Voucher FnB `, align: "LEFT" },
+                        { text: `${toRupiah(Math.round(voucherFnb), { symbol: null, floatingPoint: 0 })}`, align: "RIGHT" },
+                    ]); 
                 }
                 printer
                 .drawLine()
                 .tableCustom([
                     { text: `Jumlah Ruangan`, align: "LEFT" },
-                    { text: `${toRupiah(ivcData.Total_Kamar, { symbol: null, floatingPoint: 0 })}`, align: "RIGHT" },
+                    { text: `${toRupiah(Math.round(ivcData.Sewa_Kamar - promoRoom - voucherRoom), { symbol: null, floatingPoint: 0 })}`, align: "RIGHT" },
                 ]);
                 if(listFnB.length>0){
                    printer.tableCustom([
                         { text: `Jumlah Penjualan`, align: "LEFT" },
-                        { text: `${toRupiah(ivcData.Total_Penjualan, { symbol: null, floatingPoint: 0 })}`, align: "RIGHT" },
+                        { text: `${toRupiah(Math.round(ivcData.Charge_Penjualan - promoFnb - voucherFnb), { symbol: null, floatingPoint: 0 })}`, align: "RIGHT" },
                     ]);
                 }
                 printer.drawLine()
                 printer.tableCustom([
                     { text: ``, align: "LEFT" },
                     { text: `Jumlah`, align: "RIGHT" },
-                    { text: `${toRupiah(ivcData.Total_Kamar + ivcData.Total_Penjualan, { symbol: null, floatingPoint: 0 })}`, align: "RIGHT" },
+                    { text: `${toRupiah(Math.round((ivcData.Sewa_Kamar - promoRoom - voucherRoom) + (ivcData.Charge_Penjualan - promoFnb - voucherFnb)), { symbol: null, floatingPoint: 0 })}`, align: "RIGHT" },
                 ]);
                 printer.tableCustom([
                     { text: ``, align: "LEFT" },
